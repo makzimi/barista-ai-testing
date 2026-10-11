@@ -1,0 +1,20 @@
+# E2E smoke: menu -> drink details -> change size -> back.
+# Run on a booted emulator with the debug app installed:
+#   ./gradlew :app:installDebug && maestro test maestro/menu-to-details.yaml
+# Compose test tags are not exported as resource ids, so the flow selects by visible text (Russian UI).
+# Prices: Капучино 219.90 ₽ with an always-on 15% happy hour (fake backend) -> S 186.92 ₽, L 280.37 ₽.
+appId: ru.otus.barista
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Капучино"
+- tapOn: "Капучино"
+- assertVisible: "В корзину"
+# Size S total (219.90 ₽ only in the one minute a day the happy-hour window is closed).
+- assertVisible: "(186\\.92|219\\.90) ₽"
+- tapOn: "L · 450 мл"
+# The total moves to the L price (280.37 ₽ with the discount, 329.85 ₽ if the happy-hour window is closed).
+- assertVisible: "(280\\.37|329\\.85) ₽"
+- assertNotVisible: "186\\.92 ₽"
+- back
+- assertVisible: "Поиск напитков"

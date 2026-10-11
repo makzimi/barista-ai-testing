@@ -1,0 +1,320 @@
+{
+  "drinks": [
+    {
+      "id": "espresso",
+      "name": "Эспрессо",
+      "description": "Классический крепкий эспрессо из смеси арабики",
+      "category": "COFFEE",
+      "price": 119.90,
+      "caffeineMg": 65,
+      "calories": 5,
+      "isNew": false,
+      "isSoldOut": false,
+      "addOns": [
+        {
+          "id": "extra_shot",
+          "name": "Дополнительный шот",
+          "price": 60.00
+        }
+      ]
+    },
+    {
+      "id": "americano",
+      "name": "Американо",
+      "description": "Эспрессо, разбавленный горячей водой",
+      "category": "COFFEE",
+      "price": 149.90,
+      "caffeineMg": 130,
+      "calories": 10,
+      "isNew": false,
+      "isSoldOut": false,
+      "addOns": [
+        {
+          "id": "extra_shot",
+          "name": "Дополнительный шот",
+          "price": 60.00
+        },
+        {
+          "id": "syrup",
+          "name": "Сироп",
+          "price": 40.00
+        }
+      ]
+    },
+    {
+      "id": "cappuccino",
+      "name": "Капучино",
+      "description": "Эспрессо с молоком и плотной молочной пеной",
+      "category": "COFFEE",
+      "price": 219.90,
+      "caffeineMg": 130,
+      "calories": 120,
+      "isNew": false,
+      "isSoldOut": false,
+      "addOns": [
+        {
+          "id": "extra_shot",
+          "name": "Дополнительный шот",
+          "price": 60.00
+        },
+        {
+          "id": "syrup",
+          "name": "Сироп",
+          "price": 40.00
+        },
+        {
+          "id": "oat_milk",
+          "name": "Овсяное молоко",
+          "price": 70.00
+        }
+      ],
+      "happyHour": {
+        "from": "00:00",
+        "to": "23:59",
+        "percent": 15
+      }
+    },
+    {
+      "id": "latte",
+      "name": "Латте",
+      "description": "Мягкий кофе с большим количеством молока",
+      "category": "COFFEE",
+      "price": 229.90,
+      "caffeineMg": 130,
+      "calories": 190,
+      "isNew": false,
+      "isSoldOut": false,
+      "addOns": [
+        {
+          "id": "extra_shot",
+          "name": "Дополнительный шот",
+          "price": 60.00
+        },
+        {
+          "id": "syrup",
+          "name": "Сироп",
+          "price": 40.00
+        },
+        {
+          "id": "oat_milk",
+          "name": "Овсяное молоко",
+          "price": 70.00
+        }
+      ]
+    },
+    {
+      "id": "flat_white",
+      "name": "Флэт уайт",
+      "description": "Двойной ристретто и бархатное молоко",
+      "category": "COFFEE",
+      "price": 239.90,
+      "caffeineMg": 195,
+      "calories": 110,
+      "isNew": false,
+      "isSoldOut": false,
+      "addOns": [
+        {
+          "id": "extra_shot",
+          "name": "Дополнительный шот",
+          "price": 60.00
+        },
+        {
+          "id": "syrup",
+          "name": "Сироп",
+          "price": 40.00
+        },
+        {
+          "id": "oat_milk",
+          "name": "Овсяное молоко",
+          "price": 70.00
+        }
+      ],
+      "happyHour": {
+        "from": "16:00",
+        "to": "18:00",
+        "percent": 20
+      }
+    },
+    {
+      "id": "raf",
+      "name": "Раф",
+      "description": "Эспрессо, взбитый со сливками и ванильным сахаром",
+      "category": "COFFEE",
+      "price": 269.90,
+      "caffeineMg": 65,
+      "calories": 310,
+      "isNew": false,
+      "isSoldOut": false,
+      "addOns": [
+        {
+          "id": "extra_shot",
+          "name": "Дополнительный шот",
+          "price": 60.00
+        },
+        {
+          "id": "syrup",
+          "name": "Сироп",
+          "price": 40.00
+        },
+        {
+          "id": "whipped_cream",
+          "name": "Взбитые сливки",
+          "price": 50.00
+        }
+      ]
+    },
+    {
+      "id": "matcha_latte",
+      "name": "Матча латте",
+      "description": "Японский зелёный чай матча с молоком",
+      "category": "TEA",
+      "price": 259.90,
+      "caffeineMg": 70,
+      "calories": 150,
+      "isNew": false,
+      "isSoldOut": false,
+      "addOns": [
+        {
+          "id": "syrup",
+          "name": "Сироп",
+          "price": 40.00
+        },
+        {
+          "id": "oat_milk",
+          "name": "Овсяное молоко",
+          "price": 70.00
+        }
+      ]
+    },
+    {
+      "id": "black_tea",
+      "name": "Чай чёрный",
+      "description": "Ассам с мягким солодовым вкусом",
+      "category": "TEA",
+      "price": 139.90,
+      "caffeineMg": 45,
+      "calories": 0,
+      "isNew": false,
+      "isSoldOut": false,
+      "addOns": [
+        {
+          "id": "syrup",
+          "name": "Сироп",
+          "price": 40.00
+        }
+      ]
+    },
+    {
+      "id": "green_tea",
+      "name": "Чай зелёный",
+      "description": "Сенча с травяными нотами",
+      "category": "TEA",
+      "price": 139.90,
+      "caffeineMg": 30,
+      "calories": 0,
+      "isNew": false,
+      "isSoldOut": false,
+      "addOns": [
+        {
+          "id": "syrup",
+          "name": "Сироп",
+          "price": 40.00
+        }
+      ],
+      "happyHour": {
+        "from": "08:00",
+        "to": "11:00",
+        "percent": 10
+      }
+    },
+    {
+      "id": "cocoa",
+      "name": "Какао",
+      "description": "Горячий шоколадный напиток на молоке",
+      "category": "SEASONAL",
+      "price": 189.90,
+      "caffeineMg": 10,
+      "calories": 260,
+      "isNew": false,
+      "isSoldOut": false,
+      "addOns": [
+        {
+          "id": "syrup",
+          "name": "Сироп",
+          "price": 40.00
+        },
+        {
+          "id": "oat_milk",
+          "name": "Овсяное молоко",
+          "price": 70.00
+        },
+        {
+          "id": "whipped_cream",
+          "name": "Взбитые сливки",
+          "price": 50.00
+        }
+      ]
+    },
+    {
+      "id": "pumpkin_latte",
+      "name": "Тыквенный латте",
+      "description": "Осенний латте с тыквенным пряным сиропом",
+      "category": "SEASONAL",
+      "price": 289.90,
+      "caffeineMg": 130,
+      "calories": 280,
+      "isNew": true,
+      "isSoldOut": false,
+      "addOns": [
+        {
+          "id": "extra_shot",
+          "name": "Дополнительный шот",
+          "price": 60.00
+        },
+        {
+          "id": "syrup",
+          "name": "Сироп",
+          "price": 40.00
+        },
+        {
+          "id": "oat_milk",
+          "name": "Овсяное молоко",
+          "price": 70.00
+        },
+        {
+          "id": "whipped_cream",
+          "name": "Взбитые сливки",
+          "price": 50.00
+        }
+      ]
+    },
+    {
+      "id": "iced_latte",
+      "name": "Айс латте",
+      "description": "Холодный латте со льдом",
+      "category": "COFFEE",
+      "price": 229.90,
+      "caffeineMg": 130,
+      "calories": 160,
+      "isNew": false,
+      "isSoldOut": true,
+      "addOns": [
+        {
+          "id": "extra_shot",
+          "name": "Дополнительный шот",
+          "price": 60.00
+        },
+        {
+          "id": "syrup",
+          "name": "Сироп",
+          "price": 40.00
+        },
+        {
+          "id": "oat_milk",
+          "name": "Овсяное молоко",
+          "price": 70.00
+        }
+      ]
+    }
+  ]
+}

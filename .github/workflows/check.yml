@@ -1,0 +1,50 @@
+name: Check
+
+# The same moats an agent runs locally (`./gradlew moats`) plus the screenshot moat, on every PR and on main.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  moats:
+    name: Moats & screenshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # AGP 9 needs JDK 17+; the Gradle daemon runs on 21, modules compile to JVM 17 bytecode.
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Gradle (with cache)
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      # detekt -> Konsist -> assertModuleGraph -> unit/integration/Compose UI tests (screenshot tests excluded)
+      - name: Moats
+        run: ./gradlew moats --console=plain
+
+      # Roborazzi: every @ThemePreviews preview and *ScreenshotTest against the committed goldens
+      - name: Screenshots
+        run: ./gradlew screenshots --console=plain
+
+      - name: Upload reports and screenshot diffs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            **/build/outputs/roborazzi/**
+            **/build/reports/**
+          retention-days: 7

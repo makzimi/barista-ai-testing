@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Git pre-push hook: the push goes through only if every fast moat is green.
+# Installed into .git/hooks by `./gradlew installGitHooks` (also runs on every app build).
+# Emergency bypass: `git push --no-verify` (CI runs the same checks anyway).
+
+set -u
+
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+cd "$PROJECT_ROOT" || exit 1
+
+echo "pre-push: running ./gradlew moats (detekt, Konsist, module graph, unit tests)..."
+
+if ./gradlew moats -q --console=plain; then
+    echo "pre-push: all moats are green. Pushing."
+    exit 0
+fi
+
+echo ""
+echo "*****************************************************************"
+echo "  Push blocked: ./gradlew moats failed."
+echo "  Read the first failure above, fix the code (not the rule),"
+echo "  and run ./gradlew moats again. Rules: docs/rules/*.md"
+echo "*****************************************************************"
+exit 1

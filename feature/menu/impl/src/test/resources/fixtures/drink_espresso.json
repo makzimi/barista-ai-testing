@@ -1,0 +1,18 @@
+{
+  "id": "espresso",
+  "name": "Эспрессо",
+  "description": "Классический крепкий эспрессо из смеси арабики",
+  "category": "COFFEE",
+  "price": 119.90,
+  "caffeineMg": 65,
+  "calories": 5,
+  "isNew": false,
+  "isSoldOut": false,
+  "addOns": [
+    {
+      "id": "extra_shot",
+      "name": "Дополнительный шот",
+      "price": 60.00
+    }
+  ]
+}

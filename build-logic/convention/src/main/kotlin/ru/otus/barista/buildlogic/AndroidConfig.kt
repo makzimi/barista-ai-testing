@@ -15,6 +15,7 @@ internal fun Project.configureAndroidCommon(extension: CommonExtension) {
     }
     configureKotlinJvm()
     addCommonTestDependencies()
+    configureTestFilters()
 }
 
 internal fun Project.configureCompose(extension: CommonExtension) {

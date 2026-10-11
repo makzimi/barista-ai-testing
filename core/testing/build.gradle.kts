@@ -1,5 +1,6 @@
 plugins {
-    alias(libs.plugins.barista.android.library)
+    // Compose (not plain library): the screenshot helpers in `screenshot/` are @Composable-aware.
+    alias(libs.plugins.barista.android.compose)
 }
 
 android {
@@ -12,4 +13,13 @@ dependencies {
     api(project(":feature:menu:api"))
     api(libs.junit)
     api(libs.kotlinx.coroutines.test)
+
+    // Screenshot testing (package ru.otus.barista.core.testing.screenshot): BaristaTheme + Roborazzi + preview scanner.
+    implementation(project(":core:designsystem"))
+    implementation(libs.androidx.compose.ui.test.junit4)
+    implementation(libs.robolectric)
+    implementation(libs.roborazzi)
+    implementation(libs.roborazzi.compose)
+    implementation(libs.roborazzi.compose.preview.scanner.support)
+    implementation(libs.composable.preview.scanner)
 }

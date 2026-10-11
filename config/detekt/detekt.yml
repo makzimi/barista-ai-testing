@@ -48,6 +48,13 @@ style:
     ignoreNamedArgument: true
     ignoreAnnotated: ['Composable', 'Preview', 'ThemePreviews']
     excludes: ['**/test/**', '**/androidTest/**', '**/core/testing/**', '**/designsystem/**', '**/ui/**']
+  # Workshop tests keep their imports and fields while the @Test bodies are commented out (live-coding steps).
+  UnusedImports:
+    active: true
+    excludes: ['**/workshop/**']
+  UnusedPrivateProperty:
+    active: true
+    excludes: ['**/workshop/**']
   UnusedPrivateMember:
     active: true
     # @ThemePreviews functions are private and only "used" by tooling / the preview scanner.
@@ -63,6 +70,9 @@ style:
     active: true
 
 formatting:
+  NoUnusedImports:
+    active: true
+    excludes: ['**/workshop/**']
   MaximumLineLength:
     active: true
     maxLineLength: 120

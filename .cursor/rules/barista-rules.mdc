@@ -1,0 +1,17 @@
+---
+description: Barista project rules — always loaded
+alwaysApply: true
+---
+You are working on Barista, a multi-module Android teaching app (Kotlin, Compose, MVI) built to be tested.
+
+1. **Rules (always).** Read every file in `docs/rules/` before writing code:
+   `architecture.md`, `testing.md`, `compose.md`, `build-and-run.md`. Each rule names the check that enforces it.
+2. **Guides (on demand).** Open the matching doc in `docs/reference/` before the task (the "Read on demand" list in
+   `AGENTS.md`): unit tests → `write-unit-tests.md`; repository/DTO/feature chain → `write-integration-tests.md`;
+   Compose screen behavior → `write-ui-tests.md`; anything visual → `screenshot-tests.md`; Konsist or module-graph
+   failure → `architecture-tests.md`; any feature or bug fix → `tdd.md`; before saying done → `verify-before-done.md`;
+   new skill → `skill-creation.md`. Skills in `.cursor/skills/` point to the same docs.
+3. **Production change ⇒ test in the same change** (`docs/rules/testing.md` §1).
+4. **Done means `./gradlew moats` exits 0** — run it, quote the result. A red architecture test means fix the code, not the rule.
+
+Treat `docs/` as the single source of truth; every new doc goes to `docs/rules`, `docs/reference` or `docs/wip`.
