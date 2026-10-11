@@ -1,0 +1,111 @@
+# Built on top of detekt's default config (buildUponDefaultConfig = true): only deviations are listed here.
+# Plugins: detekt-formatting (ktlint) + Twitter Compose rules.
+
+config:
+  validation: true
+  warningsAsErrors: false
+  excludes: 'TwitterCompose.*'
+
+complexity:
+  LongParameterList:
+    active: true
+    functionThreshold: 8
+    constructorThreshold: 8
+    ignoreDefaultParameters: true
+    ignoreAnnotated: ['Composable']
+  LongMethod:
+    active: true
+    threshold: 60
+    ignoreAnnotated: ['Composable']
+  TooManyFunctions:
+    active: true
+    thresholdInFiles: 20
+    thresholdInClasses: 15
+    thresholdInObjects: 15
+    ignorePrivate: true
+    ignoreAnnotatedFunctions: ['Composable', 'ThemePreviews']
+
+naming:
+  FunctionNaming:
+    active: true
+    # Composables are PascalCase by convention; tests use backtick names with spaces.
+    ignoreAnnotated: ['Composable']
+    excludes: ['**/test/**', '**/androidTest/**']
+  TopLevelPropertyNaming:
+    active: true
+    constantPattern: '[A-Z][_A-Z0-9]*|[A-Z][A-Za-z0-9]*'
+    propertyPattern: '[A-Za-z][_A-Za-z0-9]*'
+  ObjectPropertyNaming:
+    active: true
+    # Design tokens (BaristaSpacing.Large, BaristaIcons.Favorite) are PascalCase, like Compose API guidelines.
+    propertyPattern: '[A-Za-z][_A-Za-z0-9]*'
+
+style:
+  MagicNumber:
+    active: true
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreNamedArgument: true
+    ignoreAnnotated: ['Composable', 'Preview', 'ThemePreviews']
+    excludes: ['**/test/**', '**/androidTest/**', '**/core/testing/**', '**/designsystem/**', '**/ui/**']
+  UnusedPrivateMember:
+    active: true
+    # @ThemePreviews functions are private and only "used" by tooling / the preview scanner.
+    ignoreAnnotated: ['Preview', 'ThemePreviews']
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+  ReturnCount:
+    active: true
+    max: 3
+    excludeGuardClauses: true
+  ForbiddenComment:
+    active: true
+
+formatting:
+  MaximumLineLength:
+    active: true
+    maxLineLength: 120
+  FunctionNaming:
+    active: false
+  TrailingCommaOnCallSite:
+    active: false
+  TrailingCommaOnDeclarationSite:
+    active: false
+
+TwitterCompose:
+  CompositionLocalAllowlist:
+    active: true
+  CompositionLocalNaming:
+    active: true
+  ContentEmitterReturningValues:
+    active: true
+  ModifierComposable:
+    active: true
+  ModifierMissing:
+    active: true
+  ModifierReused:
+    active: true
+  ModifierWithoutDefault:
+    active: true
+  MultipleEmitters:
+    active: true
+  MutableParams:
+    active: true
+  ComposableNaming:
+    active: true
+  ComposableParamOrder:
+    active: true
+  PreviewNaming:
+    active: true
+  PreviewPublic:
+    active: true
+    previewPublicOnlyIfParams: false
+  RememberMissing:
+    active: true
+  UnstableCollections:
+    active: true
+  ViewModelForwarding:
+    active: true
+  ViewModelInjection:
+    active: true

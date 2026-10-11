@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Barista</string>
+    <string name="debug_menu">Отладка</string>
+    <string name="debug_fail_next_request">Fail next request</string>
+</resources>

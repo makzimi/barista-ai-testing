@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="details_back">Назад</string>
+    <string name="details_caffeine">Кофеин: %1$d мг</string>
+    <string name="details_calories">%1$d ккал</string>
+    <string name="details_size_title">Размер</string>
+    <string name="details_size_option">%1$s · %2$d мл</string>
+    <string name="details_add_ons_title">Добавки</string>
+    <string name="details_add_on_increment">Добавить: %1$s</string>
+    <string name="details_add_on_decrement">Убрать: %1$s</string>
+    <string name="details_add_on_limit">Максимум 3</string>
+    <string name="details_add_to_cart">В корзину</string>
+    <string name="details_sold_out">Нет в наличии</string>
+    <string name="details_badge_new">NEW</string>
+    <string name="details_added_to_cart">«%1$s» добавлен в корзину</string>
+    <string name="details_error_network">Не удалось загрузить напиток</string>
+    <string name="details_error_not_found">Такого напитка больше нет в меню</string>
+    <string name="details_error_unknown">Что-то пошло не так</string>
+    <string name="details_message_favorite_failed">Не удалось обновить избранное</string>
+</resources>

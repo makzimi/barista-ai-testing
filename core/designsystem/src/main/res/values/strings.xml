@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ds_retry">Повторить</string>
+    <string name="ds_loading">Загрузка…</string>
+    <string name="ds_add_to_favorites">Добавить в избранное</string>
+    <string name="ds_remove_from_favorites">Убрать из избранного</string>
+</resources>
