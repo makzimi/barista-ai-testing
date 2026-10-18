@@ -1,7 +1,9 @@
 package ru.otus.barista.feature.menu.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilterChip
@@ -10,10 +12,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import ru.otus.barista.core.designsystem.BaristaIcons
+import ru.otus.barista.core.designsystem.BaristaImages
 import ru.otus.barista.core.designsystem.ThemePreviews
 import ru.otus.barista.core.designsystem.theme.BaristaSpacing
 import ru.otus.barista.core.designsystem.theme.BaristaTheme
@@ -21,6 +26,8 @@ import ru.otus.barista.domain.model.MenuSort
 import ru.otus.barista.feature.menu.R
 import ru.otus.barista.feature.menu.presentation.CategoryFilter
 import ru.otus.barista.feature.menu.presentation.MenuAction
+
+private val CategoryImageSize = 18.dp
 
 /** Category chips + "Favorites" filter + "Cheapest first" sort, in one horizontally scrolling row. */
 @Composable
@@ -37,10 +44,21 @@ fun CategoryChips(
         horizontalArrangement = Arrangement.spacedBy(BaristaSpacing.Small),
     ) {
         items(CategoryFilter.entries, key = { it.name }) { category ->
+            val imageRes = category.imageRes()
             FilterChip(
                 selected = category == selected,
                 onClick = { onAction(MenuAction.SelectCategory(category)) },
                 label = { Text(stringResource(category.labelRes())) },
+                leadingIcon = imageRes?.let { res ->
+                    {
+                        Image(
+                            painter = painterResource(res),
+                            contentDescription = null,
+                            modifier = Modifier.size(CategoryImageSize),
+                            contentScale = ContentScale.Fit,
+                        )
+                    }
+                },
                 modifier = Modifier.testTag(MenuTestTags.chip(category)),
             )
         }
@@ -70,6 +88,14 @@ private fun CategoryFilter.labelRes(): Int = when (this) {
     CategoryFilter.COFFEE -> R.string.menu_category_coffee
     CategoryFilter.TEA -> R.string.menu_category_tea
     CategoryFilter.SEASONAL -> R.string.menu_category_seasonal
+}
+
+/** UI-only enum → drawable lookup, like [labelRes] (compose.md §3); "All" has no picture. */
+private fun CategoryFilter.imageRes(): Int? = when (this) {
+    CategoryFilter.ALL -> null
+    CategoryFilter.COFFEE -> BaristaImages.categoryCoffee
+    CategoryFilter.TEA -> BaristaImages.categoryTea
+    CategoryFilter.SEASONAL -> BaristaImages.categorySeasonal
 }
 
 @ThemePreviews

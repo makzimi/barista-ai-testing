@@ -1,12 +1,13 @@
 package ru.otus.barista.feature.drinkdetails.presentation
 
 import kotlinx.collections.immutable.toImmutableList
+import ru.otus.barista.core.designsystem.BaristaImages
 import ru.otus.barista.domain.model.DrinkConfiguration
 import ru.otus.barista.domain.model.DrinkDetails
 import ru.otus.barista.domain.model.MenuError
 import ru.otus.barista.domain.model.PriceBreakdown
 
-/** Domain → [DrinkDetailsState]. All formatting happens here, never in composables. */
+/** Domain → [DrinkDetailsState]. All formatting and the choice of illustrations happen here, never in composables. */
 class DrinkDetailsStateMapper {
 
     fun mapContent(
@@ -18,6 +19,7 @@ class DrinkDetailsStateMapper {
         val drink = details.drink
         return DrinkDetailsState(
             status = DrinkDetailsStatus.Content,
+            imageRes = BaristaImages.drink(drink.id.value),
             name = drink.name,
             description = drink.description,
             caffeineMg = drink.caffeineMg,
@@ -29,6 +31,7 @@ class DrinkDetailsStateMapper {
                 val quantity = configuration.quantityOf(addOn.id)
                 AddOnRowState(
                     id = addOn.id,
+                    imageRes = BaristaImages.addOn(addOn.id.value),
                     name = addOn.name,
                     price = "+${addOn.price.format()}",
                     quantity = quantity,
@@ -46,11 +49,12 @@ class DrinkDetailsStateMapper {
 
     fun mapError(state: DrinkDetailsState, error: Throwable): DrinkDetailsState = state.copy(
         status = DrinkDetailsStatus.Error(
-            when (error) {
+            kind = when (error) {
                 is MenuError.Network -> DrinkDetailsErrorKind.NETWORK
                 is MenuError.NotFound -> DrinkDetailsErrorKind.NOT_FOUND
                 else -> DrinkDetailsErrorKind.UNKNOWN
             },
+            imageRes = BaristaImages.error,
         ),
         canAddToCart = false,
     )

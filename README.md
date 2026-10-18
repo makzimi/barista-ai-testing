@@ -13,7 +13,7 @@ Spec: [`../docs/SAMPLE_APP_SPEC.md`](../docs/SAMPLE_APP_SPEC.md).
 | `:app` | Android app | `MainActivity`, `BaristaNavHost`, `AppGraph` (manual DI), `FakeBackendInterceptor` + `assets/fake-backend/menu.json`, debug overflow menu ("Fail next request") |
 | `:core:common` | Kotlin/JVM | `Clock`/`SystemClock`, `DispatcherProvider`, `Money`, `runSuspendCatching` |
 | `:core:mvi` | Kotlin/JVM | `MviState`/`MviAction`/`MviEvent` markers, `MviViewModel` base |
-| `:core:designsystem` | Android + Compose | `BaristaTheme`, `@ThemePreviews`, `PriceText`, `BaristaBadge`, `FavoriteIcon`, `Loading/Empty/ErrorContent`, icons |
+| `:core:designsystem` | Android + Compose | `BaristaTheme`, `@ThemePreviews`, `PriceText`, `BaristaBadge`, `FavoriteIcon`, `Loading/Empty/ErrorContent`, icons, illustrations (`BaristaImages`) |
 | `:core:network` | Kotlin/JVM | `NetworkFactory` (OkHttp, Retrofit, kotlinx.serialization `Json`) |
 | `:core:testing` | Android lib (code in `src/main`) | `MainDispatcherRule`, `FixedClock`, `TestDispatcherProvider`, `Create` (domain + DTO builders), data fakes `FakeMenuRepository`/`FakeFavoritesRepository`, `FakeUseCases.kt` (one fake per use case), screenshot helpers; use via `testImplementation` |
 | `:data:api` | Kotlin/JVM | `@Serializable` DTOs (`MenuDto`, `DrinkDto`, …), `MenuSnapshotData`, `DataError`, `MenuRepository` / `FavoritesRepository` interfaces (DTO-based, `String` ids) |

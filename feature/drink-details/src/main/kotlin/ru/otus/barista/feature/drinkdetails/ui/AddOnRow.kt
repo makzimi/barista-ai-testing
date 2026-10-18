@@ -1,9 +1,11 @@
 package ru.otus.barista.feature.drinkdetails.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -12,15 +14,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import ru.otus.barista.core.designsystem.BaristaIcons
 import ru.otus.barista.core.designsystem.ThemePreviews
 import ru.otus.barista.core.designsystem.theme.BaristaSpacing
 import ru.otus.barista.core.designsystem.theme.BaristaTheme
 import ru.otus.barista.feature.drinkdetails.R
 import ru.otus.barista.feature.drinkdetails.presentation.AddOnRowState
+
+private val AddOnImageSize = 32.dp
 
 @Composable
 fun AddOnRow(
@@ -35,6 +41,14 @@ fun AddOnRow(
             .testTag(DrinkDetailsTestTags.addOnRow(state.id)),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Image(
+            painter = painterResource(state.imageRes),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(end = BaristaSpacing.Medium)
+                .size(AddOnImageSize),
+            contentScale = ContentScale.Fit,
+        )
         Column(modifier = Modifier.weight(1f)) {
             Text(text = state.name, style = MaterialTheme.typography.bodyLarge)
             val colors = MaterialTheme.colorScheme

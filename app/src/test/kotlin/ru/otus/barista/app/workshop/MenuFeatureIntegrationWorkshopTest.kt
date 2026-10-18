@@ -9,6 +9,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import ru.otus.barista.app.TestMenuDependencies
+import ru.otus.barista.core.designsystem.BaristaImages
 import ru.otus.barista.core.testing.Create
 import ru.otus.barista.core.testing.FixedClock
 import ru.otus.barista.core.testing.MainDispatcherRule
@@ -42,6 +43,7 @@ class MenuFeatureIntegrationWorkshopTest {
     // fun `opening WHEN flat white happy hour is active at 17_00 SHOULD show its discount badge`() = runTest {
     //     val expected = MenuItemState(
     //         id = Create.FLAT_WHITE.id,
+    //         imageRes = BaristaImages.drink("flat_white"),
     //         name = "Флэт уайт",
     //         description = "Двойной ристретто и бархатное молоко",
     //         price = "191.92 ₽",

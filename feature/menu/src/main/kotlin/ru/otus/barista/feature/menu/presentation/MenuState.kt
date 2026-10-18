@@ -1,5 +1,6 @@
 package ru.otus.barista.feature.menu.presentation
 
+import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -24,10 +25,11 @@ data class MenuState(
     val isStale: Boolean = false,
 ) : MviState
 
-/** One row of the list, fully formatted: the UI only lays it out. */
+/** One row of the list, fully formatted: the UI only lays it out. [imageRes] is the drink's thumbnail. */
 @Immutable
 data class MenuItemState(
     val id: DrinkId,
+    @DrawableRes val imageRes: Int,
     val name: String,
     val description: String,
     val price: String,
@@ -44,9 +46,10 @@ sealed interface MenuStatus {
 
     data object Content : MenuStatus
 
-    data class Empty(val reason: EmptyReason) : MenuStatus
+    /** [imageRes] is the illustration picked for [reason] by the mapper. */
+    data class Empty(val reason: EmptyReason, @DrawableRes val imageRes: Int) : MenuStatus
 
-    data class Error(val kind: ErrorKind) : MenuStatus
+    data class Error(val kind: ErrorKind, @DrawableRes val imageRes: Int) : MenuStatus
 }
 
 enum class EmptyReason {

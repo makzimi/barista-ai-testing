@@ -1,9 +1,11 @@
 package ru.otus.barista.feature.drinkdetails.ui
 
 import kotlinx.collections.immutable.persistentListOf
+import ru.otus.barista.core.designsystem.BaristaImages
 import ru.otus.barista.domain.model.AddOnId
 import ru.otus.barista.domain.model.Size
 import ru.otus.barista.feature.drinkdetails.presentation.AddOnRowState
+import ru.otus.barista.feature.drinkdetails.presentation.DrinkDetailsErrorKind
 import ru.otus.barista.feature.drinkdetails.presentation.DrinkDetailsState
 import ru.otus.barista.feature.drinkdetails.presentation.DrinkDetailsStatus
 
@@ -12,6 +14,7 @@ internal object DrinkDetailsPreviewData {
 
     val extraShot = AddOnRowState(
         id = AddOnId("extra_shot"),
+        imageRes = BaristaImages.addOn("extra_shot"),
         name = "Дополнительный шот",
         price = "+60.00 ₽",
         quantity = 1,
@@ -20,6 +23,7 @@ internal object DrinkDetailsPreviewData {
 
     val syrup = AddOnRowState(
         id = AddOnId("syrup"),
+        imageRes = BaristaImages.addOn("syrup"),
         name = "Сироп",
         price = "+40.00 ₽",
         quantity = 3,
@@ -28,6 +32,7 @@ internal object DrinkDetailsPreviewData {
 
     val oatMilk = AddOnRowState(
         id = AddOnId("oat_milk"),
+        imageRes = BaristaImages.addOn("oat_milk"),
         name = "Овсяное молоко",
         price = "+70.00 ₽",
         quantity = 0,
@@ -37,6 +42,7 @@ internal object DrinkDetailsPreviewData {
     /** Капучино M + 1 shot + 3 syrups = 219.90 × 1.25 + 60 + 120 = 454.875 → 454.88; −15% → 386.64375 → 386.64. */
     val cappuccino = DrinkDetailsState(
         status = DrinkDetailsStatus.Content,
+        imageRes = BaristaImages.drink("cappuccino"),
         name = "Капучино",
         description = "Эспрессо с молоком и плотной молочной пеной",
         caffeineMg = 130,
@@ -53,6 +59,7 @@ internal object DrinkDetailsPreviewData {
 
     val icedLatteSoldOut = DrinkDetailsState(
         status = DrinkDetailsStatus.Content,
+        imageRes = BaristaImages.drink("iced_latte"),
         name = "Айс латте",
         description = "Холодный латте со льдом",
         caffeineMg = 130,
@@ -62,5 +69,9 @@ internal object DrinkDetailsPreviewData {
         addOns = persistentListOf(oatMilk.copy(quantity = 0)),
         totalPrice = "229.90 ₽",
         canAddToCart = false,
+    )
+
+    val networkError = DrinkDetailsState(
+        status = DrinkDetailsStatus.Error(DrinkDetailsErrorKind.NETWORK, BaristaImages.error),
     )
 }

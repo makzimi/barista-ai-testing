@@ -1,23 +1,35 @@
 package ru.otus.barista.core.designsystem.component
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import ru.otus.barista.core.designsystem.BaristaImages
 import ru.otus.barista.core.designsystem.ThemePreviews
 import ru.otus.barista.core.designsystem.theme.BaristaSpacing
 import ru.otus.barista.core.designsystem.theme.BaristaTheme
 
+/** Size of the illustration on the empty and error states. */
+internal val StateImageSize = 120.dp
+
+/** A centered illustration ([imageRes], decorative), a title and an optional message. */
 @Composable
 fun EmptyContent(
     title: String,
+    @DrawableRes imageRes: Int,
     modifier: Modifier = Modifier,
     message: String? = null,
 ) {
@@ -28,7 +40,12 @@ fun EmptyContent(
         verticalArrangement = Arrangement.spacedBy(BaristaSpacing.Small, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = "☕", style = MaterialTheme.typography.displaySmall)
+        Image(
+            painter = painterResource(imageRes),
+            contentDescription = null,
+            modifier = Modifier.size(StateImageSize),
+            contentScale = ContentScale.Fit,
+        )
         Text(text = title, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
         if (message != null) {
             Text(
@@ -48,6 +65,7 @@ private fun EmptyContentPreview() {
         Surface {
             EmptyContent(
                 title = "Ничего не нашлось",
+                imageRes = BaristaImages.nothingFound,
                 message = "Попробуйте изменить запрос или категорию",
             )
         }

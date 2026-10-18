@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import ru.otus.barista.core.common.Money
+import ru.otus.barista.core.designsystem.BaristaImages
 import ru.otus.barista.core.testing.Create
 import ru.otus.barista.core.testing.FakeApplyHappyHourUseCase
 import ru.otus.barista.core.testing.FakeFilterAndSortMenuUseCase
@@ -49,6 +50,7 @@ class MenuViewModelTest {
 
     private val matchaRow = MenuItemState(
         id = Create.MATCHA.id,
+        imageRes = BaristaImages.drink("matcha_latte"),
         name = "Матча латте",
         description = "Японский зелёный чай матча с молоком",
         price = "259.90 ₽",
@@ -60,6 +62,7 @@ class MenuViewModelTest {
     )
     private val espressoRow = MenuItemState(
         id = Create.ESPRESSO.id,
+        imageRes = BaristaImages.drink("espresso"),
         name = "Эспрессо",
         description = "Классический крепкий эспрессо из смеси арабики",
         price = "119.90 ₽",
@@ -71,6 +74,7 @@ class MenuViewModelTest {
     )
     private val icedLatteRow = MenuItemState(
         id = Create.ICE_LATTE_SOLD_OUT.id,
+        imageRes = BaristaImages.drink("iced_latte"),
         name = "Айс латте",
         description = "Холодный латте со льдом",
         price = "229.90 ₽",
@@ -105,6 +109,7 @@ class MenuViewModelTest {
                 items = persistentListOf(
                     MenuItemState(
                         id = Create.CAPPUCCINO.id,
+                        imageRes = BaristaImages.drink("cappuccino"),
                         name = "Капучино",
                         description = "Эспрессо с молоком и плотной молочной пеной",
                         price = "186.92 ₽",
@@ -125,7 +130,7 @@ class MenuViewModelTest {
     @Test
     fun `opening WHEN loading fails with a network error SHOULD show network error`() = runTest {
         getMenu.failNext = MenuError.Network()
-        val expected = MenuState(status = MenuStatus.Error(ErrorKind.NETWORK))
+        val expected = MenuState(status = MenuStatus.Error(ErrorKind.NETWORK, BaristaImages.error))
 
         val viewModel = createLoadedViewModel()
 
@@ -135,7 +140,7 @@ class MenuViewModelTest {
     @Test
     fun `opening WHEN loading fails with an unexpected error SHOULD show unknown error`() = runTest {
         getMenu.failNext = IllegalStateException("boom")
-        val expected = MenuState(status = MenuStatus.Error(ErrorKind.UNKNOWN))
+        val expected = MenuState(status = MenuStatus.Error(ErrorKind.UNKNOWN, BaristaImages.error))
 
         val viewModel = createLoadedViewModel()
 
@@ -168,7 +173,10 @@ class MenuViewModelTest {
             if (filter.favoritesOnly) items.filter { it.drink.isFavorite } else items
         }
         val viewModel = createLoadedViewModel()
-        val expected = MenuState(status = MenuStatus.Empty(EmptyReason.NO_FAVORITES), favoritesOnly = true)
+        val expected = MenuState(
+            status = MenuStatus.Empty(EmptyReason.NO_FAVORITES, BaristaImages.noFavorites),
+            favoritesOnly = true,
+        )
 
         viewModel.onAction(MenuAction.ToggleFavoritesOnly)
         advanceUntilIdle()
@@ -180,7 +188,10 @@ class MenuViewModelTest {
     fun `Search WHEN the use case finds nothing for the query SHOULD show Empty NOTHING_FOUND`() = runTest {
         filterAndSort.answer = { items, filter -> if (filter.query.isEmpty()) items else emptyList() }
         val viewModel = createLoadedViewModel()
-        val expected = MenuState(status = MenuStatus.Empty(EmptyReason.NOTHING_FOUND), query = "раф")
+        val expected = MenuState(
+            status = MenuStatus.Empty(EmptyReason.NOTHING_FOUND, BaristaImages.nothingFound),
+            query = "раф",
+        )
 
         viewModel.onAction(MenuAction.Search("раф"))
         advanceUntilIdle()

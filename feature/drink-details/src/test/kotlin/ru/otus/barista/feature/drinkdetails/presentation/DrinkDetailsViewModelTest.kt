@@ -10,6 +10,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import ru.otus.barista.core.common.Money
+import ru.otus.barista.core.designsystem.BaristaImages
 import ru.otus.barista.core.testing.Create
 import ru.otus.barista.core.testing.FakeCalculatePriceUseCase
 import ru.otus.barista.core.testing.FakeChangeAddOnQuantityUseCase
@@ -47,6 +48,7 @@ class DrinkDetailsViewModelTest {
 
     private val espressoContent = DrinkDetailsState(
         status = DrinkDetailsStatus.Content,
+        imageRes = BaristaImages.drink("espresso"),
         name = "Эспрессо",
         description = "Классический крепкий эспрессо из смеси арабики",
         caffeineMg = 65,
@@ -75,6 +77,7 @@ class DrinkDetailsViewModelTest {
         }
         val expected = DrinkDetailsState(
             status = DrinkDetailsStatus.Content,
+            imageRes = BaristaImages.drink("cappuccino"),
             name = "Капучино",
             description = "Эспрессо с молоком и плотной молочной пеной",
             caffeineMg = 130,
@@ -199,7 +202,8 @@ class DrinkDetailsViewModelTest {
     @Test
     fun `opening WHEN loading fails with network error SHOULD show network error`() = runTest {
         getDrinkDetails.failNext = MenuError.Network()
-        val expected = DrinkDetailsState(status = DrinkDetailsStatus.Error(DrinkDetailsErrorKind.NETWORK))
+        val expected =
+            DrinkDetailsState(status = DrinkDetailsStatus.Error(DrinkDetailsErrorKind.NETWORK, BaristaImages.error))
 
         val viewModel = createLoadedViewModel(Create.ESPRESSO.id)
 
@@ -208,7 +212,8 @@ class DrinkDetailsViewModelTest {
 
     @Test
     fun `opening WHEN drink does not exist SHOULD show not found error`() = runTest {
-        val expected = DrinkDetailsState(status = DrinkDetailsStatus.Error(DrinkDetailsErrorKind.NOT_FOUND))
+        val expected =
+            DrinkDetailsState(status = DrinkDetailsStatus.Error(DrinkDetailsErrorKind.NOT_FOUND, BaristaImages.error))
 
         val viewModel = createLoadedViewModel(DrinkId("unknown"))
 
@@ -254,5 +259,12 @@ class DrinkDetailsViewModelTest {
         addOnRow(Create.EXTRA_SHOT, price = "+60.00 ₽", quantity = quantity, limitReached = limitReached)
 
     private fun addOnRow(addOn: AddOn, price: String, quantity: Int = 0, limitReached: Boolean = false) =
-        AddOnRowState(id = addOn.id, name = addOn.name, price = price, quantity = quantity, limitReached = limitReached)
+        AddOnRowState(
+            id = addOn.id,
+            imageRes = BaristaImages.addOn(addOn.id.value),
+            name = addOn.name,
+            price = price,
+            quantity = quantity,
+            limitReached = limitReached,
+        )
 }

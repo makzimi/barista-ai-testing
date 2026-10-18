@@ -1,5 +1,7 @@
 package ru.otus.barista.feature.drinkdetails.ui
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -47,6 +50,8 @@ import ru.otus.barista.feature.drinkdetails.presentation.DrinkDetailsAction
 import ru.otus.barista.feature.drinkdetails.presentation.DrinkDetailsErrorKind
 import ru.otus.barista.feature.drinkdetails.presentation.DrinkDetailsState
 import ru.otus.barista.feature.drinkdetails.presentation.DrinkDetailsStatus
+
+private val HeroHeight = 180.dp
 
 /** Stateless drink details screen: renders [state], reports every user intent through [onAction]. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,6 +110,7 @@ fun DrinkDetailsScreen(
             )
             is DrinkDetailsStatus.Error -> ErrorContent(
                 title = stringResource(status.kind.titleRes()),
+                imageRes = status.imageRes,
                 onRetry = { onAction(DrinkDetailsAction.Retry) },
                 modifier = contentModifier.testTag(DrinkDetailsTestTags.ERROR),
             )
@@ -124,7 +130,7 @@ private fun DrinkDetailsContent(
             .padding(BaristaSpacing.Large),
         verticalArrangement = Arrangement.spacedBy(BaristaSpacing.Large),
     ) {
-        ImagePlaceholder(modifier = Modifier.fillMaxWidth())
+        DrinkHero(imageRes = state.imageRes, modifier = Modifier.fillMaxWidth())
         Row(horizontalArrangement = Arrangement.spacedBy(BaristaSpacing.Small)) {
             if (state.isNew) {
                 BaristaBadge(text = stringResource(R.string.details_badge_new), kind = BadgeKind.New)
@@ -162,15 +168,21 @@ private fun DrinkDetailsContent(
     }
 }
 
+/** The drink illustration, centered on a beige tile (decorative: the top bar already names the drink). */
 @Composable
-private fun ImagePlaceholder(modifier: Modifier = Modifier) {
+private fun DrinkHero(@DrawableRes imageRes: Int, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .height(180.dp)
+            .height(HeroHeight)
             .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(16.dp)),
         contentAlignment = Alignment.Center,
     ) {
-        Text(text = "☕", style = MaterialTheme.typography.displayLarge)
+        Image(
+            painter = painterResource(imageRes),
+            contentDescription = null,
+            modifier = Modifier.height(HeroHeight),
+            contentScale = ContentScale.Fit,
+        )
     }
 }
 
@@ -246,7 +258,7 @@ private fun DrinkDetailsScreenLoadingPreview() {
 private fun DrinkDetailsScreenErrorPreview() {
     BaristaTheme {
         DrinkDetailsScreen(
-            state = DrinkDetailsState(status = DrinkDetailsStatus.Error(DrinkDetailsErrorKind.NETWORK)),
+            state = DrinkDetailsPreviewData.networkError,
             onAction = {},
         )
     }

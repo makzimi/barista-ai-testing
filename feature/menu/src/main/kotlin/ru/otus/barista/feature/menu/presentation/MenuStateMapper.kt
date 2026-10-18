@@ -2,10 +2,14 @@ package ru.otus.barista.feature.menu.presentation
 
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import ru.otus.barista.core.designsystem.BaristaImages
 import ru.otus.barista.domain.model.MenuError
 import ru.otus.barista.domain.model.MenuItem
 
-/** Domain → [MenuState]. All formatting and the choice of empty reason live here, never in composables. */
+/**
+ * Domain → [MenuState]. All formatting, the choice of empty reason and of every illustration ([BaristaImages])
+ * live here, never in composables.
+ */
 class MenuStateMapper {
 
     /**
@@ -18,14 +22,17 @@ class MenuStateMapper {
         visibleItems: List<MenuItem>,
         isStale: Boolean,
     ): MenuState = state.copy(
-        status = if (visibleItems.isEmpty()) MenuStatus.Empty(emptyReason(state, allItems)) else MenuStatus.Content,
+        status = if (visibleItems.isEmpty()) mapEmpty(emptyReason(state, allItems)) else MenuStatus.Content,
         items = visibleItems.map(::mapItem).toImmutableList(),
         isRefreshing = false,
         isStale = isStale,
     )
 
     fun mapError(state: MenuState, error: Throwable): MenuState = state.copy(
-        status = MenuStatus.Error(if (error is MenuError.Network) ErrorKind.NETWORK else ErrorKind.UNKNOWN),
+        status = MenuStatus.Error(
+            kind = if (error is MenuError.Network) ErrorKind.NETWORK else ErrorKind.UNKNOWN,
+            imageRes = BaristaImages.error,
+        ),
         items = persistentListOf(),
         isRefreshing = false,
         isStale = false,
@@ -36,6 +43,7 @@ class MenuStateMapper {
         val discount = item.discountPercent
         return MenuItemState(
             id = drink.id,
+            imageRes = BaristaImages.drink(drink.id.value),
             name = drink.name,
             description = drink.description,
             price = item.price.format(),
@@ -46,6 +54,15 @@ class MenuStateMapper {
             isFavorite = drink.isFavorite,
         )
     }
+
+    private fun mapEmpty(reason: EmptyReason): MenuStatus.Empty = MenuStatus.Empty(
+        reason = reason,
+        imageRes = when (reason) {
+            EmptyReason.NO_FAVORITES -> BaristaImages.noFavorites
+            EmptyReason.NOTHING_FOUND -> BaristaImages.nothingFound
+            EmptyReason.MENU_EMPTY -> BaristaImages.menuEmpty
+        },
+    )
 
     private fun emptyReason(state: MenuState, allItems: List<MenuItem>): EmptyReason = when {
         allItems.isEmpty() -> EmptyReason.MENU_EMPTY

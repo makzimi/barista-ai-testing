@@ -13,11 +13,8 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import ru.otus.barista.core.designsystem.DesignSystemTestTags
 import ru.otus.barista.feature.menu.presentation.CategoryFilter
-import ru.otus.barista.feature.menu.presentation.EmptyReason
-import ru.otus.barista.feature.menu.presentation.ErrorKind
 import ru.otus.barista.feature.menu.presentation.MenuAction
 import ru.otus.barista.feature.menu.presentation.MenuState
-import ru.otus.barista.feature.menu.presentation.MenuStatus
 import kotlin.test.assertEquals
 
 @RunWith(RobolectricTestRunner::class)
@@ -69,7 +66,7 @@ class MenuScreenTest {
 
     @Test
     fun `MenuScreen WHEN state is Empty with NO_FAVORITES SHOULD show the no-favorites reason`() {
-        val state = MenuState(status = MenuStatus.Empty(EmptyReason.NO_FAVORITES), favoritesOnly = true)
+        val state = MenuState(status = MenuPreviewData.noFavorites, favoritesOnly = true)
 
         composeRule.setContent { MenuScreen(state = state, onAction = actions::add) }
 
@@ -78,7 +75,7 @@ class MenuScreenTest {
 
     @Test
     fun `MenuScreen WHEN state is Error SHOULD show the retry button`() {
-        val state = MenuState(status = MenuStatus.Error(ErrorKind.NETWORK))
+        val state = MenuState(status = MenuPreviewData.networkError)
 
         composeRule.setContent { MenuScreen(state = state, onAction = actions::add) }
 
@@ -87,7 +84,7 @@ class MenuScreenTest {
 
     @Test
     fun `MenuScreen WHEN retry clicked on Error SHOULD send Retry`() {
-        val state = MenuState(status = MenuStatus.Error(ErrorKind.NETWORK))
+        val state = MenuState(status = MenuPreviewData.networkError)
         composeRule.setContent { MenuScreen(state = state, onAction = actions::add) }
 
         composeRule.onNodeWithTag(DesignSystemTestTags.RETRY).performClick()

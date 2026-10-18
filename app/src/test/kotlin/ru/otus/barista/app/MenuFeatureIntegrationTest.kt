@@ -7,6 +7,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
+import ru.otus.barista.core.designsystem.BaristaImages
 import ru.otus.barista.core.testing.Create
 import ru.otus.barista.core.testing.FixedClock
 import ru.otus.barista.core.testing.MainDispatcherRule
@@ -41,6 +42,7 @@ class MenuFeatureIntegrationTest {
             val expected = listOf(
                 MenuItemState(
                     id = Create.CAPPUCCINO.id,
+                    imageRes = BaristaImages.drink("cappuccino"),
                     name = "Капучино",
                     description = "Эспрессо с молоком и плотной молочной пеной",
                     price = "186.92 ₽",
@@ -52,6 +54,7 @@ class MenuFeatureIntegrationTest {
                 ),
                 MenuItemState(
                     id = Create.FLAT_WHITE.id,
+                    imageRes = BaristaImages.drink("flat_white"),
                     name = "Флэт уайт",
                     description = "Двойной ристретто и бархатное молоко",
                     price = "191.92 ₽",
@@ -109,7 +112,7 @@ class MenuFeatureIntegrationTest {
 
         val viewModel = createLoadedViewModel()
 
-        assertEquals(MenuStatus.Error(ErrorKind.NETWORK), viewModel.state.value.status)
+        assertEquals(MenuStatus.Error(ErrorKind.NETWORK, BaristaImages.error), viewModel.state.value.status)
     }
 
     @Test

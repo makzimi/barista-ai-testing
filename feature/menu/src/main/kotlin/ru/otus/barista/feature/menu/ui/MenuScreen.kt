@@ -116,6 +116,7 @@ private fun MenuContent(
         }
         is MenuStatus.Empty -> EmptyContent(
             title = stringResource(status.reason.titleRes()),
+            imageRes = status.imageRes,
             message = stringResource(status.reason.messageRes()),
             // Scrollable, so pull-to-refresh also works on the empty state.
             modifier = modifier
@@ -124,6 +125,7 @@ private fun MenuContent(
         )
         is MenuStatus.Error -> ErrorContent(
             title = stringResource(status.kind.titleRes()),
+            imageRes = status.imageRes,
             message = status.kind.messageRes()?.let { stringResource(it) },
             onRetry = { onAction(MenuAction.Retry) },
             modifier = modifier.testTag(MenuTestTags.ERROR),
@@ -196,7 +198,7 @@ private fun MenuScreenEmptyPreview() {
     BaristaTheme {
         MenuScreen(
             state = MenuState(
-                status = MenuStatus.Empty(EmptyReason.NOTHING_FOUND),
+                status = MenuPreviewData.nothingFound,
                 category = CategoryFilter.TEA,
                 query = "раф",
             ),
@@ -210,7 +212,7 @@ private fun MenuScreenEmptyPreview() {
 private fun MenuScreenNoFavoritesPreview() {
     BaristaTheme {
         MenuScreen(
-            state = MenuState(status = MenuStatus.Empty(EmptyReason.NO_FAVORITES), favoritesOnly = true),
+            state = MenuState(status = MenuPreviewData.noFavorites, favoritesOnly = true),
             onAction = {},
         )
     }
@@ -220,6 +222,6 @@ private fun MenuScreenNoFavoritesPreview() {
 @Composable
 private fun MenuScreenErrorPreview() {
     BaristaTheme {
-        MenuScreen(state = MenuState(status = MenuStatus.Error(ErrorKind.NETWORK)), onAction = {})
+        MenuScreen(state = MenuState(status = MenuPreviewData.networkError), onAction = {})
     }
 }

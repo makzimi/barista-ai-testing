@@ -12,10 +12,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import ru.otus.barista.core.testing.screenshot.captureScreenshot
-import ru.otus.barista.feature.menu.presentation.EmptyReason
-import ru.otus.barista.feature.menu.presentation.ErrorKind
 import ru.otus.barista.feature.menu.presentation.MenuState
-import ru.otus.barista.feature.menu.presentation.MenuStatus
 
 /**
  * Hand-written screenshots for the cases previews do not cover (font scale) plus the main states.
@@ -63,7 +60,7 @@ class MenuScreenScreenshotTest {
 
     @Test
     fun `MenuScreen WHEN nothing found SHOULD match golden`() {
-        val state = MenuState(status = MenuStatus.Empty(EmptyReason.NOTHING_FOUND), query = "раф")
+        val state = MenuState(status = MenuPreviewData.nothingFound, query = "раф")
 
         composeRule.captureScreenshot("MenuScreenScreenshotTest.empty") {
             MenuScreen(state = state, onAction = {})
@@ -72,7 +69,7 @@ class MenuScreenScreenshotTest {
 
     @Test
     fun `MenuScreen WHEN network error SHOULD match golden`() {
-        val state = MenuState(status = MenuStatus.Error(ErrorKind.NETWORK))
+        val state = MenuState(status = MenuPreviewData.networkError)
 
         composeRule.captureScreenshot("MenuScreenScreenshotTest.error") {
             MenuScreen(state = state, onAction = {})

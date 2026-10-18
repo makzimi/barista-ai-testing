@@ -77,7 +77,7 @@ class MenuScreenWorkshopTest {
     // region Step 4 — the Empty state explains why it is empty
     // @Test
     // fun `MenuScreen WHEN state is Empty with NO_FAVORITES SHOULD show the no-favorites reason`() {
-    //     val state = MenuState(status = MenuStatus.Empty(EmptyReason.NO_FAVORITES), favoritesOnly = true)
+    //     val state = MenuState(status = MenuPreviewData.noFavorites, favoritesOnly = true)
     //
     //     composeRule.setContent { MenuScreen(state = state, onAction = actions::add) }
     //

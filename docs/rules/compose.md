@@ -21,7 +21,9 @@ detekt Twitter Compose rules.
 
 Formatting money, picking an empty-state reason, filtering, deciding `canAddToCart` — all in `*StateMapper`
 (unit-tested). Composables only lay out what the State says. Allowed in UI: enum → string resource lookups,
-`testTag`, theme choices.
+`testTag`, theme choices. Images: the mapper puts `@DrawableRes` ids into State via `BaristaImages`
+(`imageRes = BaristaImages.drink(id)`); composables only render them (a fixed UI enum → drawable lookup, like the
+category chips, counts as an enum → resource lookup).
 
 ## §4 Previews are mandatory
 
