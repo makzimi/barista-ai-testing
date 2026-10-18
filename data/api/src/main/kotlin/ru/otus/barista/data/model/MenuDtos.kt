@@ -1,12 +1,14 @@
-package ru.otus.barista.feature.menu.data.remote.dto
+package ru.otus.barista.data.model
 
 import kotlinx.serialization.Serializable
 
+/** Body of `GET /menu`. */
 @Serializable
-data class MenuResponseDto(
+data class MenuDto(
     val drinks: List<DrinkDto>,
 )
 
+/** Body of `GET /drinks/{id}` and one element of [MenuDto.drinks]. [category] is the raw backend string. */
 @Serializable
 data class DrinkDto(
     val id: String,
