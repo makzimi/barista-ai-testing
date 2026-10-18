@@ -44,9 +44,4 @@
 /.claude/skills/write-unit-tests/SKILL.md
 /.claude/hooks/test-guard.py
 
-
-ЕСЛИ ЧТО-ТО ПОШЛО НЕ ТАК
-Не компилируется после раскомментирования  -> открыть эталон (тот же класс без Workshop).
-Gradle медленный                            -> запускать из гаттера; --offline после первого sync.
-Эмулятор умер                               -> скриншоты приложения есть на слайде.
-Скриншоты флакают                           -> ./gradlew compareRoborazziDebug, показать _compare.png.
+Скриншоты флакают -> ./gradlew compareRoborazziDebug, показать _compare.png.
