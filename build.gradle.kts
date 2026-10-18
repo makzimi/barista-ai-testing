@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.module.graph.assert)
 }
 
-// Two projects are called `impl` and two `api`: give each a unique group so Gradle never confuses their coordinates.
+// Several projects share a name (`api`, `impl`): give each a unique group so Gradle never confuses their coordinates.
 subprojects {
     group = "ru.otus.barista" + path.substringBeforeLast(':').replace(':', '.')
 }
@@ -46,24 +46,34 @@ tasks.withType<Detekt>().configureEach {
     }
 }
 
+// Strict layers: every arrow points down (feature -> domain -> data -> core). Each rule is a sentence:
+// see docs/rules/architecture.md §1. `[^:]+` = a top-level feature, so optional `:feature:<n>:domain|data`
+// sub-modules keep their own (wider) allowances.
 moduleGraphAssert {
-    maxHeight = 6
+    maxHeight = 4
     allowed = arrayOf(
         ":app -> .*",
-        ":feature:.*:impl -> :feature:.*:api",
-        ":feature:.*:impl -> :core:.*",
-        ":feature:.*:api -> :core:common",
-        ":feature:.*:api -> :core:mvi",
-        ":core:.* -> :core:common",
-        ":core:designsystem -> :core:mvi",
-        ":core:testing -> .*",
+        ":feature:[^:]+ -> (:domain:api|:core:.*)",
+        ":feature:[^:]+:domain -> (:domain:api|:data:api|:core:.*)",
+        ":feature:[^:]+:data -> (:data:api|:core:.*)",
+        ":domain:impl -> (:domain:api|:data:api|:core:.*)",
+        ":domain:api -> :core:common",
+        ":data:impl -> (:data:api|:core:.*)",
+        ":data:api -> :core:common",
+        ":core:(?!testing).* -> :core:.*",
+        ":core:testing -> (:core:.*|:data:api|:domain:api)",
     )
     restricted = arrayOf(
-        ".* -X> :app",
-        ":feature:.*:api -X> :feature:.*:impl",
-        ":feature:.*:impl -X> :feature:.*:impl",
-        // :core:testing is the one core module allowed to see feature APIs (it builds sample Drinks for tests).
-        ":core:(?!testing).* -X> :feature:.*",
+        ".* -X> :app", // nobody depends on the app
+        ":data:.* -X> :domain:.*", // data knows nothing about domain
+        ":data:.* -X> :feature:.*", // data knows nothing about features
+        ":domain:.* -X> :feature:.*", // domain knows nothing about UI
+        ":domain:api -X> :data:.*", // domain contracts don't leak data models
+        ":feature:[^:]+ -X> :data:.*", // UI never touches repositories directly
+        ":feature:.* -X> :domain:impl", // UI sees use case interfaces, not implementations
+        ":feature:[^:]+ -X> :feature:.*", // features don't know each other (the app glues them)
+        ".*:api -X> .*:impl", // contracts never depend on implementations
+        ":core:(?!testing).* -X> :(data|domain|feature):.*", // core is the bottom layer
     )
     configurations = setOf("api", "implementation")
 }

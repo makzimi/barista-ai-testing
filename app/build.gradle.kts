@@ -12,6 +12,9 @@ android {
         versionName = "1.0"
     }
 
+    // The sociable test serves the real fake-backend JSON: make `src/main/assets` readable as test resources.
+    sourceSets.getByName("test").resources.srcDir("src/main/assets")
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -24,10 +27,12 @@ dependencies {
     implementation(project(":core:mvi"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:network"))
-    implementation(project(":feature:menu:api"))
-    implementation(project(":feature:menu:impl"))
-    implementation(project(":feature:drink-details:api"))
-    implementation(project(":feature:drink-details:impl"))
+    implementation(project(":data:api"))
+    implementation(project(":data:impl"))
+    implementation(project(":domain:api"))
+    implementation(project(":domain:impl"))
+    implementation(project(":feature:menu"))
+    implementation(project(":feature:drink-details"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
@@ -38,4 +43,5 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     testImplementation(project(":core:testing"))
+    testImplementation(libs.kotlinx.collections.immutable)
 }

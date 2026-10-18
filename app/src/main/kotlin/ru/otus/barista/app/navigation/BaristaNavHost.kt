@@ -7,9 +7,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import ru.otus.barista.app.debug.DebugMenu
 import ru.otus.barista.app.di.AppGraph
-import ru.otus.barista.feature.drinkdetails.api.drinkDetailsRoute
+import ru.otus.barista.feature.drinkdetails.navigation.drinkDetailsRoute
 import ru.otus.barista.feature.drinkdetails.navigation.drinkDetailsScreen
-import ru.otus.barista.feature.menu.api.MENU_ROUTE
+import ru.otus.barista.feature.menu.navigation.MENU_ROUTE
 import ru.otus.barista.feature.menu.navigation.menuScreen
 
 @Composable
