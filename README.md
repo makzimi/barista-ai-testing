@@ -1,5 +1,7 @@
 # Barista
 
+> Sample-проект для открытого урока OTUS **«Написание тестов для Android в эпоху AI»** (курс *Android Developer. Professional*, автор — Максим Качинкин). Слайды и план live coding — в `LIVE_CODING.txt`.
+
 A small multi-module Android app (coffee menu + drink configurator) that exists only so that every kind of
 test can be written against it: unit, integration, Compose UI, screenshot, architecture (Konsist) and
 Gradle guards. The production code is finished; tests are added on top of it.
