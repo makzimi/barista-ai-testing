@@ -15,16 +15,20 @@ Spec: [`../docs/SAMPLE_APP_SPEC.md`](../docs/SAMPLE_APP_SPEC.md).
 | `:core:mvi` | Kotlin/JVM | `MviState`/`MviAction`/`MviEvent` markers, `MviViewModel` base |
 | `:core:designsystem` | Android + Compose | `BaristaTheme`, `@ThemePreviews`, `PriceText`, `BaristaBadge`, `FavoriteIcon`, `Loading/Empty/ErrorContent`, icons |
 | `:core:network` | Kotlin/JVM | `NetworkFactory` (OkHttp, Retrofit, kotlinx.serialization `Json`) |
-| `:core:testing` | Android lib (code in `src/main`) | `MainDispatcherRule`, `FixedClock`, `TestDispatcherProvider`, `Create` object mother; use via `testImplementation` |
-| `:feature:menu:api` | Kotlin/JVM | `Drink`, `DrinkId`, `Category`, `AddOn`, `HappyHour`, `MenuRepository`, `MenuSnapshot`, `MenuError`, `MENU_ROUTE` |
-| `:feature:menu:impl` | Android + Compose | `data/` (Retrofit `MenuApi`, DTOs, DataStore favorites, in-memory cache, `MenuRepositoryImpl`), `domain/`, `presentation/`, `ui/`, `di/`, `navigation/` |
-| `:feature:drink-details:api` | Kotlin/JVM | `DRINK_DETAILS_ROUTE`, `drinkDetailsRoute()`, `Size`, `PriceBreakdown` |
-| `:feature:drink-details:impl` | Android + Compose | `domain/`, `presentation/`, `ui/`, `di/`, `navigation/` (no data layer: reuses `MenuRepository`) |
+| `:core:testing` | Android lib (code in `src/main`) | `MainDispatcherRule`, `FixedClock`, `TestDispatcherProvider`, `Create` (domain + DTO builders), data fakes `FakeMenuRepository`/`FakeFavoritesRepository`, `FakeUseCases.kt` (one fake per use case), screenshot helpers; use via `testImplementation` |
+| `:data:api` | Kotlin/JVM | `@Serializable` DTOs (`MenuDto`, `DrinkDto`, …), `MenuSnapshotData`, `DataError`, `MenuRepository` / `FavoritesRepository` interfaces (DTO-based, `String` ids) |
+| `:data:impl` | Android lib | `internal`: Retrofit `MenuApi`, `InMemoryMenuCache`, DataStore favorites, `MenuRepositoryImpl`, `FavoritesRepositoryImpl`; public: `DataGraph(retrofit, dataStore, dispatchers)` |
+| `:domain:api` | Kotlin/JVM | domain models (`Drink`, `DrinkId`, `HappyHour`, `MenuSnapshot`, `MenuError`, `Size`, `PriceBreakdown`, …) + use case interfaces |
+| `:domain:impl` | Android lib (plain Kotlin code) | `*UseCaseImpl`, `DrinkMapper` (DTO → domain, `DataError` → `MenuError`, favorites merge), `DomainGraph` |
+| `:feature:menu` | Android + Compose | `presentation/`, `ui/`, `navigation/` (`MENU_ROUTE`), `di/` (`MenuDependencies` = use cases) |
+| `:feature:drink-details` | Android + Compose | `presentation/`, `ui/`, `navigation/` (`drinkDetailsRoute()`), `di/` |
 | `:konsist-test` | Kotlin/JVM | Architecture tests (Konsist): layering, use cases, domain purity, MVI, Compose and test conventions |
 | `build-logic` | included build | Convention plugins `barista.android.application`, `barista.android.library`, `barista.android.library.compose`, `barista.kotlin.library` |
 
-Dependency rules (enforced by `./gradlew assertModuleGraph`): `impl → api | core`, never `impl → impl`;
-`api → core:common | core:mvi`; `core ↛ feature` (except `:core:testing`); nothing depends on `:app`.
+Dependency rules (enforced by `./gradlew assertModuleGraph`, one sentence each in `docs/rules/architecture.md` §1):
+`feature → domain:api | core`; `domain:impl → domain:api | data:api | core`; `data:impl → data:api | core`;
+`*:api → core:common`; data ↛ domain/feature, feature ↛ data / domain:impl / other features, `api ↛ impl`,
+`core ↛ data/domain/feature` (`:core:testing` may see both `api`s); nothing depends on `:app`.
 
 ## Run
 
@@ -52,20 +56,21 @@ overflow menu → **Fail next request**, then pull to refresh.
 
 ## Where is the logic to test
 
-| Class | Rule(s) / responsibility |
+| Class (module) | Rule(s) / responsibility |
 |---|---|
-| `HappyHour.isActiveAt` (`:feature:menu:api`) | 1 |
-| `ApplyHappyHourUseCase` (menu `domain`) | 1 (list price with discount, `Clock`-driven) |
-| `FilterAndSortMenuUseCase` (menu `domain`) | 2, 3, 4 |
-| `MenuStateMapper` (menu `presentation`) | formatting, empty reason (no favorites / nothing found / menu empty), error kind |
-| `MenuViewModel` (menu `presentation`) | Loading → Content/Empty/Error, retry, refresh, 300 ms search debounce, favorites sync, `NavigateToDrink` event |
-| `MenuRepositoryImpl` (menu `data`) | 7, 8; DTO contract via `MenuApi` + `DtoMappers` |
-| `DataStoreFavoritesLocalDataSource`, `InMemoryMenuCache` (menu `data`) | 8, 7 (storage) |
-| `CalculatePriceUseCase` (details `domain`) | 5 |
-| `ChangeAddOnQuantityUseCase` (details `domain`) | 6 |
-| `GetDrinkDetailsUseCase` (details `domain`) | 1 (discount at load time) |
-| `DrinkDetailsStateMapper` (details `presentation`) | `limitReached`, `canAddToCart` (2), price formatting |
-| `DrinkDetailsViewModel` (details `presentation`) | size/add-on changes recalculate price, `AddedToCart` / `NavigateBack` events, retry |
+| `HappyHour.isActiveAt` (`:domain:api`) | 1 |
+| `ApplyHappyHourUseCaseImpl` (`:domain:impl`) | 1 (list price with discount, `Clock`-driven) |
+| `FilterAndSortMenuUseCaseImpl` (`:domain:impl`) | 2, 3, 4 |
+| `GetMenuUseCaseImpl`, `GetDrinkDetailsUseCaseImpl` (`:domain:impl`) | 8 (favorites merged on read), 1 (discount at load time), errors → `MenuError` |
+| `DrinkMapper` (`:domain:impl`) | DTO → domain (unknown category skipped, `HH:mm` happy hours, kopecks), `DataError` → `MenuError` |
+| `CalculatePriceUseCaseImpl` (`:domain:impl`) | 5 |
+| `ChangeAddOnQuantityUseCaseImpl` (`:domain:impl`) | 6 |
+| `MenuRepositoryImpl` (`:data:impl`) | 7; DTO contract via `MenuApi` |
+| `DataStoreFavoritesLocalDataSource`, `InMemoryMenuCache` (`:data:impl`) | 8, 7 (storage) |
+| `MenuStateMapper` (`:feature:menu` `presentation`) | formatting, empty reason (no favorites / nothing found / menu empty), error kind |
+| `MenuViewModel` (`:feature:menu` `presentation`) | Loading → Content/Empty/Error, retry, refresh, 300 ms search debounce, favorites sync, `NavigateToDrink` event |
+| `DrinkDetailsStateMapper` (`:feature:drink-details` `presentation`) | `limitReached`, `canAddToCart` (2), price formatting |
+| `DrinkDetailsViewModel` (`:feature:drink-details` `presentation`) | size/add-on changes recalculate price, `AddedToCart` / `NavigateBack` events, retry |
 | `MenuScreen`, `DrinkDetailsScreen` (`ui`) | stateless; test tags in `MenuTestTags` / `DrinkDetailsTestTags`; `@ThemePreviews` for every state |
 | `Money` (`:core:common`) | half-up rounding to kopecks, `"350.50 ₽"` formatting |
 

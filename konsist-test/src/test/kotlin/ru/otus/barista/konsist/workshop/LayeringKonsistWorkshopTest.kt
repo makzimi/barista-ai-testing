@@ -6,11 +6,13 @@ import ru.otus.barista.konsist.productionScope
 
 /**
  * Live-coding copy of the "ViewModels depend on use cases only" rule (LIVE_CODING_SCRIPT Part 5).
- * Uncomment the region, run it, then add `MenuRepository` to the `MenuViewModel` constructor to see it fail.
+ * Uncomment the region and run it. A feature cannot even import `MenuRepository` any more (the module graph forbids
+ * `:feature -> :data`), so break it from inside the feature: declare `class RecentDrinksCache` in
+ * `feature/menu/.../presentation` and add it to the `MenuViewModel` constructor — only Konsist catches that.
  */
 class LayeringKonsistWorkshopTest {
 
-    private val dataLayerSuffixes = listOf("Repository", "Api", "DataSource", "Cache")
+    private val dataLayerSuffixes = listOf("Repository", "Api", "DataSource", "Cache", "UseCaseImpl")
 
     // region Step 1 — ViewModels depend on use cases only
     // @Test

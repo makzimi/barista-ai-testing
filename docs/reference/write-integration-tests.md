@@ -5,14 +5,15 @@ classes collaborate and only the outer boundary is replaced. Contract: [`docs/ru
 
 ## Which kind
 
-| Risk | Test | Boundary replaced |
-|---|---|---|
-| DTO / JSON contract, Retrofit annotations, HTTP errors → `MenuError` | **MockWebServer** test of `MenuRepositoryImpl` | the HTTP server |
-| Stale cache, favorites merge, retries across layers | **Sociable** test through `MenuGraph` | `MenuApi`, favorites storage, clock, dispatchers |
+| Risk | Test | Module | Boundary replaced |
+|---|---|---|---|
+| DTO / JSON contract, Retrofit annotations, HTTP errors → `DataError`, cache/stale | **MockWebServer** test of `MenuRepositoryImpl` | `:data:impl` | the HTTP server |
+| Stale banner, favorites merge, retries across **all** layers | **Sociable** test: `MenuGraph` + `DomainGraph` + `DataGraph` | `:app` | the backend (fake-backend interceptor), favorites file, clock, dispatchers |
 
-Names: `MenuRepositoryImplTest` (same package as the SUT, `data`) and `<Feature>FeatureIntegrationTest` (feature root package).
+Names: `MenuRepositoryImplTest` (same package as the SUT, `data.impl.repository`) and `<Feature>FeatureIntegrationTest`
+(`ru.otus.barista.app`). The sociable test lives in `:app` because only the app may see every `impl`.
 
-## Template A — MockWebServer (real Retrofit + OkHttp + kotlinx.serialization)
+## Template A — MockWebServer (`:data:impl`, real Retrofit + OkHttp + kotlinx.serialization)
 
 ```kotlin
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -22,12 +23,10 @@ class MenuRepositoryImplTest {
     val server = MockWebServer()
 
     private val dispatcher = UnconfinedTestDispatcher()
-    private val favorites = FakeFavoritesLocalDataSource()
     private val sut by lazy {
         MenuRepositoryImpl(
             api = NetworkFactory.retrofit(server.url("/").toString()).create(MenuApi::class.java),
             cache = InMemoryMenuCache(),
-            favorites = favorites,
             dispatchers = TestDispatcherProvider(dispatcher),
         )
     }
@@ -38,20 +37,22 @@ class MenuRepositoryImplTest {
             server.enqueue(MockResponse().setBody(Fixtures.read("menu.json")))
             server.enqueue(MockResponse().setResponseCode(500))
             sut.getMenu(forceRefresh = false)
+            val expected = MenuSnapshotData(drinks = Create.sampleMenuDto(), isStale = true)
 
             val result = sut.getMenu(forceRefresh = true)
 
-            assertEquals(true, result.getOrThrow().isStale)
+            assertEquals(expected, result.getOrThrow())
         }
 }
 ```
+- `MenuApi` and `MenuRepositoryImpl` are `internal`: these tests live in `:data:impl`, nowhere else.
 - Build Retrofit with the production `NetworkFactory` — the point is to test the real converter and annotations.
-- JSON bodies live in `src/test/resources/fixtures/` and are read by a tiny `Fixtures.read(name)` helper; copy the shape of
-  `app/src/main/assets/fake-backend/menu.json`.
-- Assert the request too when the contract matters: `assertEquals("/menu", server.takeRequest().path)`.
-- A renamed JSON field must make a test red (`MenuError.Network` caused by a serialization exception) — keep one such test.
+- JSON bodies live in `data/impl/src/test/resources/fixtures/`, read by `Fixtures.read(name)`; results are DTOs —
+  compare with `Create.sampleMenuDto()` / `Create.ESPRESSO_DTO`.
+- A renamed JSON field must make a test red (`DataError.Network` caused by a serialization exception) — keep one.
+- No HTTP needed (cache/fallback only)? `FakeMenuApi` fakes the Retrofit interface: `MenuRepositoryImplWithFakeApiTest`.
 
-## Template B — sociable feature test through `MenuGraph`
+## Template B — sociable test in `:app`
 
 ```kotlin
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -60,34 +61,37 @@ class MenuFeatureIntegrationTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule(StandardTestDispatcher())
 
-    private val api = FakeMenuApi()
-    private val favorites = FakeFavoritesLocalDataSource()
     private val clock = FixedClock(time = LocalTime.of(17, 0))
-    private val graph = MenuGraph(
-        TestMenuDependencies(api, favorites, clock, TestDispatcherProvider(mainDispatcherRule.testDispatcher)),
-    )
+    private val dependencies = TestMenuDependencies(clock, mainDispatcherRule.testDispatcher)
+    private val graph = MenuGraph(dependencies)
 
     @Test
     fun `Refresh WHEN backend fails after a successful load SHOULD keep content and show the stale banner`() = runTest {
         val viewModel = graph.createViewModel().also { advanceUntilIdle() }
-        api.failNext = IOException("offline")
+        val expected = viewModel.state.value.copy(isStale = true)
+        dependencies.backend.setFailNextRequest(true)
 
         viewModel.onAction(MenuAction.Refresh)
         advanceUntilIdle()
 
-        assertEquals(true, viewModel.state.value.isStale)
+        assertEquals(expected, viewModel.state.value)
     }
 }
 ```
-- `TestMenuDependencies` wires the real `MenuRepositoryImpl` + `InMemoryMenuCache`; only `MenuApi`, favorites,
-  clock and dispatchers are fakes. Everything between them is production code.
-- `FakeMenuApi` fails loudly for endpoints the scenario did not arrange (`unarranged(endpoint)`), so a test never
-  passes on accidental defaults.
+- `TestMenuDependencies` (`app/src/test`) builds the production `DataGraph(retrofit, dataStore, dispatchers)` +
+  `DomainGraph`, exactly like `AppGraph`. `:data:impl` stays sealed: the test only hands it a Retrofit whose OkHttp
+  client has the app's own `FakeBackendInterceptor` (serving `src/main/assets/fake-backend/menu.json`, added to the
+  test resources) and an in-memory `DataStore`.
+- OkHttp's async calls run as test-dispatcher tasks (`Dispatcher(TestDispatcherExecutorService(...))`), so
+  `advanceUntilIdle()` covers the whole round trip — no real threads, no flakiness.
+- Arrange failures with `dependencies.backend.setFailNextRequest(true)`; requests are recorded in `dependencies.requests`;
+  stored favorites: `dependencies.storedFavoriteIds()`.
 - Assert what the user would see (State, Events), not which internal method ran.
 
 ## Run
 
 ```bash
-./gradlew :feature:menu:impl:testDebugUnitTest --tests "*IntegrationTest" --tests "*RepositoryImplTest" -q --console=plain
+./gradlew :data:impl:testDebugUnitTest --tests "*RepositoryImpl*Test" -q --console=plain
+./gradlew :app:testDebugUnitTest --tests "*IntegrationTest" -q --console=plain
 ./gradlew moats -q --console=plain
 ```

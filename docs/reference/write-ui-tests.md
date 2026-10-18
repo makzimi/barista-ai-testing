@@ -48,7 +48,7 @@ class MenuScreenTest {
 ## Run
 
 ```bash
-./gradlew :feature:menu:impl:testDebugUnitTest --tests "*.MenuScreenTest" -q --console=plain
+./gradlew :feature:menu:testDebugUnitTest --tests "*.MenuScreenTest" -q --console=plain
 ./gradlew moats -q --console=plain
 ```
 End-to-end flows on a real device live in `maestro/` and are not part of `moats`.

@@ -5,30 +5,42 @@ import com.lemonappdev.konsist.api.verify.assertFalse
 import org.junit.Test
 
 /**
- * Layer direction inside a feature `impl`, checked by imports: ui -> presentation -> domain <- data.
- * Same-package references emit no import, so these checks are a floor, not a proof.
+ * Strict layers, checked by imports per module (`moduleName` = path, e.g. `data/impl`): feature → domain → data.
+ * The module graph (`assertModuleGraph`) is the first line of defence; this is the second one, at source level.
  */
 class LayeringKonsistTest {
 
-    private fun filesInLayer(layer: String): List<KoFileDeclaration> =
-        productionScope().files.filter { it.packagee?.name.hasPackageSegment(layer) }
+    private fun filesInModules(prefix: String): List<KoFileDeclaration> =
+        productionScope().files.filter { it.moduleName == prefix || it.moduleName.startsWith("$prefix/") }
 
-    private fun KoFileDeclaration.importsLayer(vararg layers: String): Boolean = imports
-        .map { it.name }
-        .filter { it.startsWith(PROJECT_PACKAGE) }
-        .any { import -> layers.any { layer -> import.hasPackageSegment(layer) } }
+    private fun KoFileDeclaration.importsAny(vararg packages: String): Boolean =
+        imports.any { import -> packages.any { import.name == it || import.name.startsWith("$it.") } }
 
     @Test
-    fun `data layer does not import presentation or ui`() {
-        filesInLayer("data").assertFalse(additionalMessage = "see $ARCHITECTURE_DOC §2") {
-            it.importsLayer("presentation", "ui")
+    fun `data modules import nothing from domain or feature`() {
+        filesInModules("data").assertFalse(strict = true, additionalMessage = "see $ARCHITECTURE_DOC §2") {
+            it.importsAny(DOMAIN_PACKAGE, FEATURE_PACKAGE)
         }
     }
 
     @Test
-    fun `domain layer does not import data presentation or ui`() {
-        filesInLayer("domain").assertFalse(strict = true, additionalMessage = "see $ARCHITECTURE_DOC §2") {
-            it.importsLayer("data", "presentation", "ui")
+    fun `domain api imports nothing from data`() {
+        filesInModules("domain/api").assertFalse(strict = true, additionalMessage = "see $ARCHITECTURE_DOC §2") {
+            it.importsAny(DATA_PACKAGE)
+        }
+    }
+
+    @Test
+    fun `domain modules import nothing from feature`() {
+        filesInModules("domain").assertFalse(strict = true, additionalMessage = "see $ARCHITECTURE_DOC §2") {
+            it.importsAny(FEATURE_PACKAGE)
+        }
+    }
+
+    @Test
+    fun `feature modules import nothing from data or domain impl`() {
+        filesInModules("feature").assertFalse(strict = true, additionalMessage = "see $ARCHITECTURE_DOC §2") {
+            it.importsAny(DATA_PACKAGE, DOMAIN_IMPL_PACKAGE)
         }
     }
 
@@ -37,20 +49,24 @@ class LayeringKonsistTest {
         productionScope().files
             .filter { it.name.contains("Repository") }
             .assertFalse(strict = true, additionalMessage = "see $ARCHITECTURE_DOC §2") { file ->
-                file.imports.any { it.name.endsWith("UseCase") }
+                file.imports.any { it.name.endsWith("UseCase") || it.name.endsWith("UseCaseImpl") }
             }
     }
 
     @Test
     fun `use cases do not import ViewModels`() {
         productionScope().files
-            .filter { it.name.removeSuffix(".kt").endsWith("UseCase") }
+            .filter { file -> USE_CASE_SUFFIXES.any { file.name.removeSuffix(".kt").endsWith(it) } }
             .assertFalse(strict = true, additionalMessage = "see $ARCHITECTURE_DOC §2") { file ->
                 file.imports.any { it.name.endsWith("ViewModel") }
             }
     }
 
     private companion object {
-        const val PROJECT_PACKAGE = "ru.otus.barista."
+        const val DATA_PACKAGE = "ru.otus.barista.data"
+        const val DOMAIN_PACKAGE = "ru.otus.barista.domain"
+        const val DOMAIN_IMPL_PACKAGE = "ru.otus.barista.domain.impl"
+        const val FEATURE_PACKAGE = "ru.otus.barista.feature"
+        val USE_CASE_SUFFIXES = listOf("UseCase", "UseCaseImpl")
     }
 }

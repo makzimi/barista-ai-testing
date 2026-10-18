@@ -2,6 +2,8 @@
 
 Barista — a small multi-module Android app (coffee menu + drink configurator, Kotlin, Compose, MVI) that exists
 to be tested: unit, integration, Compose UI, screenshot and architecture tests, all on the JVM.
+Modules are strict layers: `:feature:*` → `:domain:api` ← `:domain:impl` → `:data:api` ← `:data:impl`; only `:app`
+sees every `impl` ([architecture §1](docs/rules/architecture.md)).
 
 ## Documentation
 

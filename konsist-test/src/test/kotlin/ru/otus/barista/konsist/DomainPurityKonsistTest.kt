@@ -4,7 +4,7 @@ import com.lemonappdev.konsist.api.declaration.KoFileDeclaration
 import com.lemonappdev.konsist.api.verify.assertFalse
 import org.junit.Test
 
-/** Business logic stays plain Kotlin: no Android, no UI toolkit, no network or serialization library. */
+/** Business logic and data contracts stay plain Kotlin: no Android, no UI toolkit, no network library in the domain. */
 class DomainPurityKonsistTest {
 
     private fun KoFileDeclaration.importsAny(prefixes: List<String>, allowed: Set<String> = emptySet()): Boolean =
@@ -16,8 +16,7 @@ class DomainPurityKonsistTest {
     fun `domain and presentation import no Android, Compose UI, Retrofit, OkHttp or serialization`() {
         productionScope().files
             .filter { file ->
-                val pkg = file.packagee?.name
-                pkg.hasPackageSegment("domain") || pkg.hasPackageSegment("presentation")
+                file.moduleName.startsWith("domain/") || file.packagee?.name.hasPackageSegment("presentation")
             }
             .assertFalse(strict = true, additionalMessage = "see $ARCHITECTURE_DOC §5") {
                 it.importsAny(LOGIC_FORBIDDEN_PREFIXES, allowed = COMPOSE_STABILITY_ANNOTATIONS)
@@ -25,15 +24,13 @@ class DomainPurityKonsistTest {
     }
 
     @Test
-    fun `feature api modules and core common or mvi import nothing from Android`() {
+    fun `domain, data api and core common or mvi import nothing from Android`() {
         productionScope().files
-            .filter { file -> file.moduleName.isFeatureApi() || file.moduleName in PURE_CORE_MODULES }
+            .filter { file -> file.moduleName.startsWith("domain/") || file.moduleName in JVM_ONLY_MODULES }
             .assertFalse(strict = true, additionalMessage = "see $ARCHITECTURE_DOC §5") {
                 it.importsAny(ANDROID_PREFIXES, allowed = setOf(VIEW_MODEL_BASE))
             }
     }
-
-    private fun String.isFeatureApi(): Boolean = startsWith("feature/") && endsWith("/api")
 
     private companion object {
         val LOGIC_FORBIDDEN_PREFIXES = listOf(
@@ -51,6 +48,8 @@ class DomainPurityKonsistTest {
 
         /** `MviViewModel` extends the Jetpack ViewModel so that screens get `viewModelScope` and survive rotation. */
         const val VIEW_MODEL_BASE = "androidx.lifecycle.ViewModel"
-        val PURE_CORE_MODULES = setOf("core/common", "core/mvi")
+
+        /** `domain/impl` is an Android library only so its tests can use `:core:testing`; its code must not care. */
+        val JVM_ONLY_MODULES = setOf("data/api", "core/common", "core/mvi")
     }
 }

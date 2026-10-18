@@ -5,15 +5,16 @@ Templates and the how-to live in the skills (`write-unit-tests`, `write-integrat
 
 ## §1 Which test for which change
 
-| You changed… | Write / update | Lives in |
+| You changed… | Write / update | Lives in (module → package) |
 |---|---|---|
-| A business rule (price, discount, happy hour, sort/filter, add-on limit) | **Unit** test of the use case / model | `src/test/.../domain/` |
-| State formatting, empty/error reason, `limitReached` | **Unit** test of the `*StateMapper` | `src/test/.../presentation/` |
-| ViewModel flow (loading → content, retry, debounce, events) | **Unit** test of the ViewModel with `FakeMenuRepository` | `src/test/.../presentation/` |
-| DTO, Retrofit interface, JSON, repository cache/stale logic | **Integration** test: `MockWebServer` + real `NetworkFactory` | `src/test/.../data/` |
-| Wiring across layers (ViewModel → use case → repository → mapper) | **Integration** (sociable) test through `MenuGraph` | `src/test/<feature package>/` |
-| A composable's callbacks, visibility, enabled state | **Compose UI** test (Robolectric) | `src/test/.../ui/` |
-| Layout, colors, dark theme, a new screen state | **Screenshot**: add a `@ThemePreviews` preview, re-record | `src/test/screenshots/` |
+| A business rule (price, discount, happy hour, sort/filter, add-on limit, favorites merge) | **Unit** test of the `*UseCaseImpl` over data fakes (`FakeMenuRepository`, `FakeFavoritesRepository`) | `:domain:impl` → `domain.impl.usecase` |
+| DTO → domain mapping, `DataError` → `MenuError` | **Unit** test of `DrinkMapper` | `:domain:impl` → `domain.impl.mapper` |
+| State formatting, empty/error reason, `limitReached` | **Unit** test of the `*StateMapper` | feature → `presentation` |
+| ViewModel flow (loading → content, retry, debounce, events) | **Unit** test of the ViewModel with **fake use cases** (`FakeGetMenuUseCase` …) | feature → `presentation` |
+| DTO, Retrofit interface, JSON, repository cache/stale logic | **Integration** test: `MockWebServer` + real `NetworkFactory` | `:data:impl` → `data.impl.repository` |
+| Wiring across layers (ViewModel → use case → mapper → repository → JSON) | **Integration** (sociable) test through `MenuGraph` + `DataGraph` + `DomainGraph` | `:app` → `ru.otus.barista.app` |
+| A composable's callbacks, visibility, enabled state | **Compose UI** test (Robolectric) | feature → `ui` |
+| Layout, colors, dark theme, a new screen state | **Screenshot**: add a `@ThemePreviews` preview, re-record | feature → `src/test/screenshots/` |
 | Module dependency or package placement | Nothing new — `assertModuleGraph` / Konsist already guard it | — |
 
 **Production change ⇒ test in the same change.** A fix comes with the test that would have caught the bug.
@@ -43,14 +44,18 @@ Checked by: `TestConventionKonsistTest` (`every test asserts something`).
 
 ## §5 Fakes over mocks
 
-- Data comes from fakes: `FakeMenuRepository`, `FakeMenuApi`, `FakeFavoritesLocalDataSource`, `FixedClock`, `TestDispatcherProvider`.
+- Fake the seam directly below the SUT: ViewModel → `Fake*UseCase` (`:core:testing`, `FakeUseCases.kt`);
+  `*UseCaseImpl` → `FakeMenuRepository` / `FakeFavoritesRepository` (data layer, DTO-based);
+  repository → `MockWebServer` or `FakeMenuApi` / `FakeFavoritesLocalDataSource` (`:data:impl` tests only).
+  Plus `FixedClock`, `TestDispatcherProvider`.
 - Mock (MockK) only when the interaction itself is the behavior; never `verify` plumbing (`verify { repository.getMenu() }`).
 - No relaxed mocks. No real time, network, disk or `Thread.sleep`.
 
 ## §6 Test data
 
-`Create` (`:core:testing`) builds every model with realistic defaults: `Create.drink(basePrice = Money(30000))`,
-`Create.CAPPUCCINO`, `Create.sampleMenu()`. Show only the fields the scenario is about.
+`Create` (`:core:testing`) builds every model with realistic defaults — domain: `Create.drink(basePrice = Money(30000))`,
+`Create.CAPPUCCINO`, `Create.sampleMenu()`; data: `Create.drinkDto(price = 300.0)`, `Create.CAPPUCCINO_DTO`,
+`Create.sampleMenuDto()` (= `menu.json`). Show only the fields the scenario is about.
 
 ## §7 Coroutines
 

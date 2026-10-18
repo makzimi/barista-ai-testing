@@ -10,7 +10,9 @@ android {
 // Consumed by other modules via testImplementation(project(":core:testing")); code lives in src/main on purpose.
 dependencies {
     api(project(":core:common"))
-    api(project(":feature:menu:api"))
+    // Fakes of both seams: data-layer repositories (for use case tests) and use cases (for ViewModel tests).
+    api(project(":data:api"))
+    api(project(":domain:api"))
     api(libs.junit)
     api(libs.kotlinx.coroutines.test)
 

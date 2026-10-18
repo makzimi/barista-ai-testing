@@ -5,7 +5,7 @@ committed PNG goldens in `<module>/src/test/screenshots/`.
 
 ## Where screenshots come from
 
-1. **Previews (automatic).** Every `@ThemePreviews` preview in `core:designsystem` and the feature impls becomes
+1. **Previews (automatic).** Every `@ThemePreviews` preview in `core:designsystem` and the feature modules becomes
    two goldens (light, dark) through ComposablePreviewScanner (`<fqcn>.<PreviewFn>.<light|dark>.png`).
    Want a new screen state covered? Add a `private` `@ThemePreviews` preview with a sample State — that's it.
 2. **Hand-written `*ScreenshotTest`** for what previews can't express (font scale, a specific device):

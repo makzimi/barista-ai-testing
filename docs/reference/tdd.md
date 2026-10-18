@@ -22,12 +22,12 @@ Wrote code before the test? Delete it and start from the test. Don't keep it "as
 | **REPEAT** | next behavior | — |
 
 ```bash
-./gradlew :feature:drink-details:impl:testDebugUnitTest --tests "*.ChangeAddOnQuantityUseCaseTest" -q --console=plain
+./gradlew :domain:impl:testDebugUnitTest --tests "*.ChangeAddOnQuantityUseCaseImplTest" -q --console=plain
 ```
 
 - Test passes on the first run → it tests existing behavior or nothing. Fix the test.
 - Bug fix: first a test that reproduces the bug (red), then the fix (green). The test stays as the regression guard.
-- Example (Barista): "max 5 identical add-ons" → red test in `ChangeAddOnQuantityUseCaseTest`
+- Example (Barista): "max 5 identical add-ons" → red test in `ChangeAddOnQuantityUseCaseImplTest`
   `` `change WHEN quantity is 5 and delta is 1 SHOULD keep 5` `` → change the limit → green → update the mapper test for
   `limitReached` → `./gradlew moats`.
 

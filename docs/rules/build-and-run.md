@@ -5,8 +5,8 @@ Always `./gradlew` (the wrapper pins Gradle 9.5). JDK 17+; locally: `export JAVA
 | Task | Command |
 |---|---|
 | **All fast moats — the definition of done** | `./gradlew moats` |
-| Unit tests of one module | `./gradlew :feature:menu:impl:testDebugUnitTest` (JVM modules: `:core:common:test`) |
-| One test class / method | add `--tests "ru.otus.barista.feature.menu.domain.FilterAndSortMenuUseCaseTest"` / `--tests "*.FilterAndSortMenuUseCaseTest.sort WHEN*"` |
+| Unit tests of one module | `./gradlew :domain:impl:testDebugUnitTest` (JVM modules: `:core:common:test`) |
+| One test class / method | add `--tests "ru.otus.barista.domain.impl.usecase.FilterAndSortMenuUseCaseImplTest"` / `--tests "*.FilterAndSortMenuUseCaseImplTest.WHEN sort*"` |
 | Architecture tests only | `./gradlew :konsist-test:test --rerun-tasks` |
 | Module dependency rules | `./gradlew assertModuleGraph` |
 | Static analysis (auto-corrects formatting) | `./gradlew detekt` |
