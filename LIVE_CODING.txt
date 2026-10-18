@@ -1,0 +1,128 @@
+LIVE CODING — ПЛАН
+Приложение готово. Пишем только тесты: открываем workshop-файл, выделяем "// region Step N",
+Cmd + / , запускаем тест из гаттера. Эталон лежит рядом (тот же класс без слова Workshop).
+
+==================================================================================
+КОМАНДЫ (терминал Android Studio, корень barista/)
+==================================================================================
+./gradlew moats                        все быстрые рвы: detekt + konsist + граф модулей + unit/UI тесты
+./gradlew screenshots                  сверить скриншоты с golden
+./gradlew recordScreenshots            перезаписать golden
+./gradlew :konsist-test:test --rerun-tasks       только архитектурные тесты
+./gradlew assertModuleGraph            только граф модулей
+./gradlew :feature:menu:testDebugUnitTest --tests "*MenuViewModelTest"      один класс
+./gradlew :app:installDebug            поставить приложение на эмулятор
+./gradlew moats -q --console=plain     как запускает агент: пусто = ок, exit code = ответ
+
+Диф скриншота после падения:  <module>/build/outputs/roborazzi/<имя>_compare.png
+Запуск с adb:  adb shell am start -n ru.otus.barista/ru.otus.barista.app.MainActivity
+
+==================================================================================
+ШАГ 0. Тур по приложению (3 мин)
+==================================================================================
+Запустить app. Показать: happy hour у Капучино (-15%), Айс латте внизу (sold out),
+чипы и поиск "мат", сердечко, экран напитка (размер, добавки, "Максимум 3"),
+Отладка -> Fail next request -> pull-to-refresh -> баннер "Нет связи".
+  где:  settings.gradle.kts                      — модули: data/{api,impl}, domain/{api,impl}, feature/*, core/*
+        feature/menu/src/main/kotlin/ru/otus/barista/feature/menu/   — только presentation / ui / navigation / di
+        app/src/main/kotlin/ru/otus/barista/app/di/AppGraph.kt      — единственное место, где собираются все impl
+
+==================================================================================
+ШАГ 1. Unit: чистый use case — формула цены (4 шага)
+==================================================================================
+Что: цена = база x размер + добавки, потом скидка, округление один раз. Без единого дабла.
+Зачем: самый дешёвый ров; имя теста = WHEN ... SHOULD ..., Arrange/Act/Assert пустыми строками.
+  пишем:  domain/impl/src/test/kotlin/ru/otus/barista/domain/impl/workshop/CalculatePriceUseCaseWorkshopTest.kt
+  код:    domain/impl/src/main/kotlin/ru/otus/barista/domain/impl/usecase/CalculatePriceUseCaseImpl.kt
+
+==================================================================================
+ШАГ 2. Unit: use case с фейком репозитория (4 шага)
+==================================================================================
+Что: FakeMenuRepository (DTO) + FixedClock -> happy hour; sold out последний; избранное смёржено.
+     Шаг 4 — тот же тест на MockK: длиннее и ломается при рефакторинге.
+Зачем: фейки вместо моков; use case'ы компонуются; маппер DTO -> domain виден в деле.
+  пишем:  domain/impl/src/test/kotlin/ru/otus/barista/domain/impl/workshop/GetMenuUseCaseWorkshopTest.kt
+  код:    domain/impl/src/main/kotlin/ru/otus/barista/domain/impl/mapper/DrinkMapper.kt
+  фейки:  core/testing/src/main/kotlin/ru/otus/barista/core/testing/   (FakeMenuRepository, FixedClock, Create)
+
+==================================================================================
+ШАГ 3. Unit: ViewModel как state machine (5 шагов)
+==================================================================================
+Что: Loading -> Content; Empty(NO_FAVORITES); Error -> Retry; debounce поиска на виртуальном времени; событие OpenDrink.
+Зачем: фича видит только интерфейсы use case -> тестируем с фейковыми use case, не с репозиторием.
+     "Этот файл человек читает вместо ViewModel".
+  пишем:  feature/menu/src/test/kotlin/ru/otus/barista/feature/menu/workshop/MenuViewModelWorkshopTest.kt
+  код:    feature/menu/src/main/kotlin/ru/otus/barista/feature/menu/presentation/MenuViewModel.kt
+  фейки:  core/testing/src/main/kotlin/ru/otus/barista/core/testing/FakeUseCases.kt
+
+==================================================================================
+ШАГ 4. Интеграция: граница HTTP (3 шага)
+==================================================================================
+Что: MockWebServer + настоящий Retrofit + JSON -> DTO; 500 + тёплый кэш -> isStale; 500 + холодный -> ошибка.
+     Переименовать поле в fixture -> красный: "ров контракта".
+Зачем: ловит сломанный DTO и кэш, которых unit-тесты не видят.
+  пишем:  data/impl/src/test/kotlin/ru/otus/barista/data/impl/workshop/MenuRepositoryImplWorkshopTest.kt
+  код:    data/impl/src/main/kotlin/ru/otus/barista/data/impl/repository/MenuRepositoryImpl.kt
+  json:   data/impl/src/test/resources/fixtures/menu.json
+
+==================================================================================
+ШАГ 5. Интеграция: "социальный" тест всей фичи (2 шага)
+==================================================================================
+Что: настоящие ViewModel + use case'ы + DrinkMapper + MenuRepositoryImpl, фейк только на бэкенде.
+     Бэк падает на refresh -> контент остаётся, баннер stale.
+Зачем: склейка слоёв без HTTP и эмулятора; живёт в :app — единственном модуле, который видит все impl.
+  пишем:  app/src/test/kotlin/ru/otus/barista/app/workshop/MenuFeatureIntegrationWorkshopTest.kt
+
+==================================================================================
+ШАГ 6. UI: Compose test rule на JVM (меню 4 шага, напиток 2 шага)
+==================================================================================
+Что: setContent { MenuScreen(state, onAction) } -> строки по testTag; клик -> Action; чип "Чай"; Empty с причиной.
+     Напиток: sold out -> кнопка disabled; тапы размера и "+" -> Action.
+Зачем: экран stateless -> тест без ViewModel и без эмулятора. Ров: "потеряли onClick при рефакторинге".
+ВАЖНО: в Step 1 раскомментировать ДВА блока — @RunWith над классом и первый тест.
+  пишем:  feature/menu/src/test/kotlin/ru/otus/barista/feature/menu/workshop/MenuScreenWorkshopTest.kt
+          feature/drink-details/src/test/kotlin/ru/otus/barista/feature/drinkdetails/workshop/DrinkDetailsScreenWorkshopTest.kt
+  код:    feature/menu/src/main/kotlin/ru/otus/barista/feature/menu/ui/MenuScreen.kt   (+ MenuTestTags.kt рядом)
+
+==================================================================================
+ШАГ 7. Скриншоты: Roborazzi (3 шага)
+==================================================================================
+Что: показать папку golden ("мы их не писали — каждое @ThemePreviews стало тестом");
+     руками: Content light -> dark (один qualifier) -> fontScale 1.5.
+     Сломать: BaristaBadge padding 4.dp -> 8.dp, ./gradlew screenshots, открыть _compare.png. Откатить.
+Зачем: AI не видит пиксели — скриншоты видят; диф в PR смотрит человек.
+ВАЖНО: Step 1 — тоже два блока (runner + тест).
+  пишем:  feature/menu/src/test/kotlin/ru/otus/barista/feature/menu/workshop/MenuScreenScreenshotWorkshopTest.kt
+  golden: feature/menu/src/test/screenshots/
+  ломаем: core/designsystem/src/main/kotlin/ru/otus/barista/core/designsystem/component/BaristaBadge.kt
+
+==================================================================================
+ШАГ 8. Архитектура: Konsist + граф модулей (1 шаг + два слома)
+==================================================================================
+Что: пройти по правилам; раскомментировать "ViewModels depend on use cases only".
+     Сломать Konsist: в feature/menu/presentation объявить class RecentDrinksCache и вставить в конструктор MenuViewModel -> красный.
+     Сломать граф (дважды):
+       data/impl/build.gradle.kts      + implementation(project(":domain:api"))   -> "data ничего не знает о domain"
+       feature/menu/build.gradle.kts   + implementation(project(":data:api"))     -> "feature не трогает репозитории"
+     ./gradlew assertModuleGraph. Откатить всё.
+Зачем: правила команды как исполняемый код; самый дешёвый ров — секунды, без сборки приложения.
+  пишем:  konsist-test/src/test/kotlin/ru/otus/barista/konsist/workshop/LayeringKonsistWorkshopTest.kt
+  правила: konsist-test/src/test/kotlin/ru/otus/barista/konsist/   (Layering, UseCase, DomainPurity, Mvi, Compose, TestConvention, ModuleStructure)
+  граф:    build.gradle.kts  (блок moduleGraphAssert — каждая строка = предложение со слайда)
+
+==================================================================================
+ШАГ 9. Harness: просим агента (если есть время)
+==================================================================================
+Что: открыть AGENTS.md, docs/rules/testing.md, .claude/skills/write-unit-tests/SKILL.md.
+     В Claude Code: "добавь правило: максимум 5 одинаковых добавок, и покрой тестами".
+     Смотреть: сработал skill, hook напомнил про тест, в конце агент сам запустил ./gradlew moats.
+Зачем: таблички направляют, рвы останавливают. Какой ров поймал бы ошибку агента — см. карту рвов на слайде.
+  файлы:  AGENTS.md  ·  docs/rules/*.md  ·  .claude/skills/*/SKILL.md  ·  .claude/hooks/test-guard.py  ·  scripts/pre-push
+
+==================================================================================
+ЕСЛИ ЧТО-ТО ПОШЛО НЕ ТАК
+==================================================================================
+Тест не компилируется после раскомментирования  -> открыть эталон (тот же класс без Workshop) и продолжить из него.
+Gradle медленный                                 -> запускать из гаттера; --offline после первого sync.
+Эмулятор умер                                    -> пропустить Шаг 0; скриншоты приложения есть на слайде.
+Скриншоты флакают                                -> ./gradlew compareRoborazziDebug и показать _compare.png.
