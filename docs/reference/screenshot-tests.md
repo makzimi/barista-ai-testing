@@ -1,5 +1,9 @@
 # Screenshot Tests
 
+> Running a `*ScreenshotTest` from the IDE gutter or with a plain `testDebugUnitTest` **verifies** against the goldens
+> (the convention plugin sets `roborazzi.test.verify=true` whenever no Roborazzi task is requested). Recording is
+> always explicit: `./gradlew recordScreenshots`. Diffs land in `<module>/build/outputs/roborazzi/*_compare.png`.
+
 Body of the `screenshot-tests` skill. Roborazzi + Robolectric render composables on the JVM and compare them with
 committed PNG goldens in `<module>/src/test/screenshots/`.
 

@@ -18,6 +18,7 @@ Always `./gradlew` (the wrapper pins Gradle 9.5). JDK 17+; locally: `export JAVA
 - `moats` = `detekt` → `:konsist-test:test` → `assertModuleGraph` → `fastUnitTests` (every `testDebugUnitTest`/`test`
   with `src/test`, screenshot tests excluded). Same property by hand: `-PexcludeScreenshotTests`.
 - `screenshots` runs only the screenshot tests (`-PonlyScreenshotTests`). Don't combine it with `moats` in one invocation.
+- A screenshot test run any other way (IDE gutter, `testDebugUnitTest --tests`) verifies against the goldens; a golden is only (re)written by `recordScreenshots` / `recordRoborazziDebug`.
 - `--rerun-tasks` for Konsist forces a fresh scan: the result you quote is then evidence, not a cached verdict.
 - For agents and scripts add `-q --console=plain`: on success the output is empty and the exit code is the answer.
 - `detekt` rewrites formatting in place (`autoCorrect`); re-read files you edited after running it.
