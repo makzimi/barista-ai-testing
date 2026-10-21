@@ -1,13 +1,3 @@
-./gradlew moats                        все быстрые рвы: detekt + konsist + граф модулей + unit/UI тесты
-./gradlew screenshots                  сверить скриншоты с golden
-./gradlew recordScreenshots            перезаписать golden
-./gradlew :konsist-test:test --rerun-tasks       только архитектурные тесты
-./gradlew assertModuleGraph            только граф модулей
-./gradlew :feature:menu:testDebugUnitTest --tests "*MenuViewModelTest"      один класс
-./gradlew :app:installDebug            поставить приложение на эмулятор
-./gradlew moats -q --console=plain     как запускает агент: пусто = ок, exit code = ответ
-
-
 ШАГ 1. Unit: чистый use case — формула цены
 /domain/impl/workshop/CalculatePriceUseCaseWorkshopTest.kt
 
@@ -43,5 +33,16 @@
 /docs/rules/testing.md
 /.claude/skills/write-unit-tests/SKILL.md
 /.claude/hooks/test-guard.py
+
+
+./gradlew moats                        все быстрые рвы: detekt + konsist + граф модулей + unit/UI тесты
+./gradlew screenshots                  сверить скриншоты с golden
+./gradlew recordScreenshots            перезаписать golden
+./gradlew :konsist-test:test --rerun-tasks       только архитектурные тесты
+./gradlew assertModuleGraph            только граф модулей
+./gradlew :feature:menu:testDebugUnitTest --tests "*MenuViewModelTest"      один класс
+./gradlew :app:installDebug            поставить приложение на эмулятор
+./gradlew moats -q --console=plain     как запускает агент: пусто = ок, exit code = ответ
+
 
 Скриншоты флакают -> ./gradlew compareRoborazziDebug, показать _compare.png.

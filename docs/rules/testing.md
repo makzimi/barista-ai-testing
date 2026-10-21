@@ -51,6 +51,8 @@ Checked by: `TestConventionKonsistTest` (`every test asserts something`).
 - Mock (MockK) only when the interaction itself is the behavior; never `verify` plumbing (`verify { repository.getMenu() }`).
 - No relaxed mocks. No real time, network, disk or `Thread.sleep`.
 
+Checked by: `TestConventionKonsistTest` (`tests assert on fakes, not on mock interactions`: no `verify`/`coVerify` outside `workshop`).
+
 ## §6 Test data
 
 `Create` (`:core:testing`) builds every model with realistic defaults — domain: `Create.drink(basePrice = Money(30000))`,

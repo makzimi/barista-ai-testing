@@ -22,7 +22,7 @@ every `src/main`, `testScope()` = every `src/test`; `build-logic` and `build/` e
 | `DomainPurityKonsistTest` | no Android/Compose UI/Retrofit/OkHttp/serialization in `domain/*` and `presentation`; no Android in `domain/*`, `data/api`, `core:common`, `core:mvi` | architecture §5 |
 | `MviConventionKonsistTest` | `@Immutable data class *State`, sealed `*Action`/`*Event`, `*ViewModel`, all in `presentation`; State without lambdas and mutable collections | architecture §6, compose §2 |
 | `ComposeKonsistTest` | `@ThemePreviews` next to every `*Screen`; tags from `*TestTags`; `modifier` first optional | compose §4–6 |
-| `TestConventionKonsistTest` | `WHEN … SHOULD …` names, no AAA comments, an assertion in every test, `*Test` classes next to their SUT | testing §2–4, §8 |
+| `TestConventionKonsistTest` | `WHEN … SHOULD …` names, no AAA comments, an assertion in every test, no `verify` on mocks, `*Test` classes next to their SUT | testing §2–5, §8 |
 
 Every failure message ends with `see docs/rules/<file>.md §N` and lists the offending declarations with file:line.
 

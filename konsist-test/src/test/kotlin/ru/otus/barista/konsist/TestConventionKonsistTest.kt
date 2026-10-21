@@ -49,6 +49,17 @@ class TestConventionKonsistTest {
     }
 
     @Test
+    fun `tests assert on fakes, not on mock interactions`() {
+        appTests.files
+            .filterNot { it.packagee?.name.hasPackageSegment("workshop") }
+            .assertFalse(
+                additionalMessage = "verify on a mock checks plumbing; assert a fake's state: see $TESTING_DOC §5"
+            ) {
+                MOCK_VERIFY.containsMatchIn(it.text)
+            }
+    }
+
+    @Test
     fun `classes with tests are named Test`() {
         testClasses.assertTrue(additionalMessage = "see $TESTING_DOC §8") {
             it.hasNameEndingWith("Test")
@@ -90,13 +101,13 @@ class TestConventionKonsistTest {
         val WHEN_SHOULD = Regex("""(^| )WHEN .+ SHOULD .+""")
         val PHASE_COMMENT = Regex("""(?m)^\s*//\s*(Arrange|Act|Assert|Given|When|Then)\b""")
         val ASSERTION = Regex("""assert|await|verify|expect|captureRoboImage|captureScreenshot""")
+        val MOCK_VERIFY = Regex("""\b(coVerify|verify)(All|Order|Sequence)?\s*[({]""")
         val TEST_SUFFIXES = listOf(
             "Test",
             "WorkshopTest",
             "ScreenshotTest",
             "ScreenTest",
             "IntegrationTest",
-            "MockkTest",
         )
     }
 }

@@ -89,7 +89,7 @@ class GetMenuUseCaseWorkshopTest {
     // }
     // endregion
 
-    // region Step 4 (contrast) — Step 3 with MockK: longer, restates the data, breaks on refactor
+    // region Step 4 (anti-example) — Step 3 with MockK: longer, restates the data, and the verify checks plumbing
     // @Test
     // fun `WHEN a drink is stored as favorite SHOULD return it with isFavorite true using mocks`() = runTest {
     //     val mockMenuRepository = mockk<MenuRepository>()
@@ -107,6 +107,8 @@ class GetMenuUseCaseWorkshopTest {
     //     val result = mockSut(forceRefresh = false)
     //
     //     assertEquals(expected, result.getOrThrow())
+    //     // plumbing check: delete it — assertEquals above already proves the call happened (testing.md §5).
+    //     // Then delete the whole test: Step 3 proves the same behaviour in half the lines.
     //     coVerify(exactly = 1) { mockMenuRepository.getMenu(forceRefresh = false) }
     // }
     // endregion
